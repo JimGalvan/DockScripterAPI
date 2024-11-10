@@ -15,37 +15,35 @@ public class DockerService
 
     public async Task<string> CreateContainerAsync(string scriptFilePath, CancellationToken cancellationToken)
     {
-        IList<ContainerListResponse> containers = await _client.Containers.ListContainersAsync(
-            new ContainersListParameters()
-            {
-                Limit = 10,
-            }, cancellationToken);
+        // 1. Create the Docker volume
+        var volumeName = "script_volume";
+        await _client.Volumes.CreateAsync(new VolumesCreateParameters { Name = volumeName }, cancellationToken);
 
+        // 2. Pull the Python image if necessary
         await PullPythonImageAsync("python", "3.8-slim", cancellationToken);
 
+        // 3. Create the container using the volume
         var response = await _client.Containers.CreateContainerAsync(new CreateContainerParameters
         {
             Image = "python:3.8-slim",
-            HostConfig = new HostConfig()
+            Cmd = new[] { "python", "/scripts/test_script.py" },
+            HostConfig = new HostConfig
             {
-                DNS = new[] { "8.8.8.8", "8.8.4.4" }
+                Mounts = new List<Mount>
+                {
+                    new Mount
+                    {
+                        Type = "volume",
+                        Source = volumeName,
+                        Target = "/scripts"
+                    }
+                },
+                Memory = 256 * 1024 * 1024,
+                NanoCPUs = 500000000
             }
-            // Cmd = new[] { "python", "/scripts/test_script.py" },
-            // HostConfig = new HostConfig
-            // {
-            //     Mounts = new List<Mount>
-            //     {
-            //         new Mount
-            //         {
-            //             Type = "bind",
-            //             Source = scriptFilePath,
-            //             Target = "/scripts/test_script.py"
-            //         }
-            //     },
-            //     Memory = 256 * 1024 * 1024,
-            //     NanoCPUs = 500000000
-            // }
         }, cancellationToken);
+
+        // 4. Copy the script content to the volume
 
         return response.ID;
     }
