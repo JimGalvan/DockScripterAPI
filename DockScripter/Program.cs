@@ -29,7 +29,7 @@ builder.Services.AddScoped<IEnvironmentService, EnvironmentService>();
 builder.Services.AddScoped<EnvironmentRepository>();
 builder.Services.AddScoped<IScriptService, ScriptService>();
 builder.Services.AddScoped<ScriptRepository>();
-builder.Services.AddScoped<IExecutionResultService, ExecutionResultService>();
+builder.Services.AddScoped<IExecutionService, ExecutionService>();
 builder.Services.AddScoped<ExecutionResultRepository>();
 
 

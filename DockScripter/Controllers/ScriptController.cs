@@ -13,11 +13,35 @@ namespace DockScripter.Controllers;
 [Authorize]
 public class ScriptController : ControllerBase
 {
+    private readonly IExecutionService _executionService;
     private readonly IScriptService _scriptService;
 
-    public ScriptController(IScriptService scriptService)
+    public ScriptController(IExecutionService executionService, IScriptService scriptService)
     {
+        _executionService = executionService;
         _scriptService = scriptService;
+    }
+
+    [HttpPost("execute/{scriptId}")]
+    public async Task<IActionResult> ExecuteScriptInContainerAsync(Guid scriptId, CancellationToken cancellationToken)
+    {
+        // Retrieve the script to ensure it exists and is accessible to the user
+        var script = await _scriptService.GetScriptByIdAsync(scriptId, cancellationToken);
+        if (script == null)
+            return NotFound(new { Message = "Script not found." });
+
+        // Execute the script in a Docker container
+        var executionResult = await _executionService.ExecuteScriptInContainerAsync(script, cancellationToken);
+
+        // Return the execution result
+        return Ok(new ExecutionResultResponseDto
+        {
+            Id = executionResult.Id,
+            Output = executionResult.Output!,
+            ErrorOutput = executionResult.ErrorOutput!,
+            Status = executionResult.Status.ToString(),
+            ExecutedAt = executionResult.ExecutedAt
+        });
     }
 
     [HttpPost]
