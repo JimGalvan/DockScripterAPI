@@ -1,7 +1,6 @@
 ﻿using System.Linq.Expressions;
 using DockScripter.Domain.Entities;
 using DockScripter.Domain.Models;
-using DockScripter.Entities;
 
 namespace DockScripter.Repositories.Interfaces;
 

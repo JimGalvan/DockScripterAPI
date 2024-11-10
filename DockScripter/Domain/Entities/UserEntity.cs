@@ -18,8 +18,6 @@ public class UserEntity : BaseEntity
     [EmailAddress]
     [MaxLength(100)]
     public string? Email { get; init; }
-
-    [Required] public List<UserRole> Roles { get; init; } = new();
-
+    
     // Relationships
 }

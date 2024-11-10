@@ -1,6 +1,5 @@
 ﻿using DockScripter.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using DockScripter.Entities;
 
 namespace DockScripter.Repositories.Contexts;
 

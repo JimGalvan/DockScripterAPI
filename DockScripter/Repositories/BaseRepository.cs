@@ -2,7 +2,6 @@
 using DockScripter.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using DockScripter.Domain.Models;
-using DockScripter.Entities;
 using DockScripter.Repositories.Contexts;
 
 namespace DockScripter.Repositories;

@@ -44,20 +44,6 @@ namespace DockScripter.Services
                 PasswordSalt = passwordSalt
             };
 
-            var requestRole = request.Role?.ToLower().Trim() ?? string.Empty;
-
-            switch (requestRole)
-            {
-                case "owner":
-                    user.Roles.Add(UserRole.Owner);
-                    break;
-                case "user":
-                    user.Roles.Add(UserRole.User);
-                    break;
-                default:
-                    throw new InvalidDataException($"Invalid role provided. Provided role: {requestRole}.");
-            }
-
             await _userRepository.AddAsync(user, cancellationToken);
             await _userRepository.SaveChangesAsync(cancellationToken);
 
