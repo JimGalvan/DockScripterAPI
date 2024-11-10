@@ -1,5 +1,7 @@
 ﻿using DockScripter.Domain.Dtos.Responses;
+using DockScripter.Domain.Entities;
 using DockScripter.Services;
+using DockScripter.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DockScripter.Controllers;
@@ -9,28 +11,17 @@ namespace DockScripter.Controllers;
 [Route("api/v{version:apiVersion}/[controller]")]
 public class ExecutionResultController : ControllerBase
 {
-    private readonly IExecutionResultService _executionResultService;
+    private readonly IExecutionService _executionService;
 
-    public ExecutionResultController(IExecutionResultService executionResultService)
+    public ExecutionResultController(IExecutionService executionService)
     {
-        _executionResultService = executionResultService;
+        _executionService = executionService;
     }
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<ExecutionResultResponseDto>> GetExecutionResult(Guid id,
-        CancellationToken cancellationToken)
+    [HttpGet("{scriptId}")]
+    public async Task<ActionResult<IEnumerable<ExecutionResultEntity>>> GetExecutionResults(Guid scriptId, CancellationToken cancellationToken)
     {
-        var result = await _executionResultService.GetResultByIdAsync(id, cancellationToken);
-        if (result == null)
-            return NotFound();
-
-        return new ExecutionResultResponseDto
-        {
-            Id = result.Id,
-            Output = result.Output,
-            ErrorOutput = result.ErrorOutput,
-            Status = result.Status.ToString(),
-            ExecutedAt = result.ExecutedAt
-        };
+        var results = await _executionService.GetResultsByScriptId(scriptId, cancellationToken);
+        return Ok(results);
     }
 }
