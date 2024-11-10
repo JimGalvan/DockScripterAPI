@@ -1,6 +1,8 @@
-﻿namespace DockScripter.Domain.Dtos.Requests;
+﻿using System.ComponentModel.DataAnnotations;
 
-public class EnvironmentRequestDTO
+namespace DockScripter.Domain.Dtos.Requests;
+
+public class EnvironmentRequestDto
 {
-    public string EnvironmentName { get; set; }
+    [Required] public string EnvironmentName { get; set; }
 }

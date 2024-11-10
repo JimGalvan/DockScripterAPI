@@ -1,6 +1,5 @@
 ﻿using DockScripter.Domain.Dtos.Requests;
 using DockScripter.Domain.Dtos.Responses;
-using DockScripter.Domain.Entities;
 using DockScripter.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,24 +19,18 @@ public class EnvironmentController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> InitializeEnvironment(EnvironmentRequestDTO environmentDto,
+    public async Task<IActionResult> CreateEnvironment(EnvironmentRequestDto environmentDto,
         CancellationToken cancellationToken)
     {
-        var userId = ControllerUtils.GetUserIdFromToken(this);
+        var createdEnvironment =
+            await _environmentService.InitializeEnvironmentAsync(environmentDto, HttpContext, cancellationToken);
 
-        var environment = new EnvironmentEntity
+        return CreatedAtAction(nameof(GetEnvironment), new { id = createdEnvironment.Id }, new EnvironmentResponseDto
         {
-            EnvironmentName = environmentDto.EnvironmentName,
-            UserId = userId
-        };
-
-        await _environmentService.InitializeEnvironmentAsync(environment, cancellationToken);
-        return CreatedAtAction(nameof(GetEnvironment), new { id = environment.Id }, new EnvironmentResponseDto
-        {
-            Id = environment.Id,
-            EnvironmentName = environment.EnvironmentName,
-            Status = environment.Status.ToString(),
-            CreationDateTimeUtc = environment.CreationDateTimeUtc
+            Id = createdEnvironment.Id,
+            EnvironmentName = createdEnvironment.EnvironmentName,
+            Status = createdEnvironment.Status.ToString(),
+            CreatedAt = createdEnvironment.CreationDateTimeUtc
         });
     }
 
@@ -53,7 +46,35 @@ public class EnvironmentController : ControllerBase
             Id = environment.Id,
             EnvironmentName = environment.EnvironmentName,
             Status = environment.Status.ToString(),
-            CreationDateTimeUtc = environment.CreationDateTimeUtc
+            CreatedAt = environment.CreationDateTimeUtc
         };
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateEnvironment(Guid id, EnvironmentRequestDto environmentDto,
+        CancellationToken cancellationToken)
+    {
+        var updatedEnvironment =
+            await _environmentService.UpdateEnvironmentAsync(id, environmentDto, HttpContext, cancellationToken);
+        if (updatedEnvironment == null)
+            return NotFound();
+
+        return Ok(new EnvironmentResponseDto
+        {
+            Id = updatedEnvironment.Id,
+            EnvironmentName = updatedEnvironment.EnvironmentName,
+            Status = updatedEnvironment.Status.ToString(),
+            CreatedAt = updatedEnvironment.CreationDateTimeUtc
+        });
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteEnvironment(Guid id, CancellationToken cancellationToken)
+    {
+        var deleted = await _environmentService.TerminateEnvironmentAsync(id, cancellationToken);
+        if (!deleted)
+            return NotFound();
+
+        return NoContent();
     }
 }
