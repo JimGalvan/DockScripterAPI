@@ -7,13 +7,13 @@ namespace DockScripter.Domain.Entities;
 [Table("ScriptEntities")]
 public class ScriptEntity : BaseEntity
 {
-    [Required] [MaxLength(100)] public string? Name { get; init; }
+    [Required] [MaxLength(100)] public string? Name { get; set; }
 
     [Required] [MaxLength(260)] public string? FilePath { get; set; } 
 
-    [Required] public ScriptLanguage Language { get; init; } 
+    [Required] public ScriptLanguage Language { get; set; } 
 
-    [MaxLength(500)] public string? Description { get; init; }
+    [MaxLength(500)] public string? Description { get; set; }
 
     // Relationships
     [Required] public Guid UserId { get; init; } 

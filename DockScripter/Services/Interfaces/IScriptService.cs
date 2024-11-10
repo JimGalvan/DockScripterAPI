@@ -9,4 +9,8 @@ public interface IScriptService
         CancellationToken cancellationToken);
 
     Task<ScriptEntity?> GetScriptByIdAsync(Guid scriptId, CancellationToken cancellationToken);
+    
+    Task<ScriptEntity?> UpdateScriptAsync(Guid scriptId, ScriptRequestDto scriptDto, CancellationToken cancellationToken);
+    
+    Task DeleteScriptAsync(Guid scriptId, CancellationToken cancellationToken);
 }

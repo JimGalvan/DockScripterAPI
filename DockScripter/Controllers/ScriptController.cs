@@ -54,4 +54,30 @@ public class ScriptController : ControllerBase
             LastExecutedAt = script.LastExecutedAt
         };
     }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateScript(Guid id, ScriptRequestDto scriptDto,
+        CancellationToken cancellationToken)
+    {
+        var updatedScript = await _scriptService.UpdateScriptAsync(id, scriptDto, cancellationToken);
+        if (updatedScript == null)
+            return NotFound();
+
+        return Ok(new ScriptResponseDto
+        {
+            Id = updatedScript.Id,
+            Name = updatedScript.Name!,
+            Description = updatedScript.Description!,
+            Language = updatedScript.Language.ToString(),
+            Status = updatedScript.Status.ToString(),
+            CreationDateTimeUtc = updatedScript.CreationDateTimeUtc
+        });
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> DeleteScript(Guid id, CancellationToken cancellationToken)
+    {
+        await _scriptService.DeleteScriptAsync(id, cancellationToken);
+        return NoContent();
+    }
 }
