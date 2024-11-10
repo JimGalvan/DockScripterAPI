@@ -21,7 +21,5 @@ public class ScriptEntity : BaseEntity
 
     // For tracking execution status
     public ScriptStatus Status { get; set; } = ScriptStatus.Created;
-
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? LastExecutedAt { get; set; }
 }

@@ -37,7 +37,7 @@ public class EnvironmentController : ControllerBase
             Id = environment.Id,
             EnvironmentName = environment.EnvironmentName,
             Status = environment.Status.ToString(),
-            CreatedAt = environment.CreatedAt
+            CreationDateTimeUtc = environment.CreationDateTimeUtc
         });
     }
 
@@ -53,7 +53,7 @@ public class EnvironmentController : ControllerBase
             Id = environment.Id,
             EnvironmentName = environment.EnvironmentName,
             Status = environment.Status.ToString(),
-            CreatedAt = environment.CreatedAt
+            CreationDateTimeUtc = environment.CreationDateTimeUtc
         };
     }
 }

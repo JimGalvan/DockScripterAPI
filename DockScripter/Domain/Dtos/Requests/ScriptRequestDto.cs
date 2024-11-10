@@ -1,7 +1,12 @@
-﻿namespace DockScripter.Domain.Dtos.Requests;
+﻿using System.ComponentModel.DataAnnotations;
+using DockScripter.Domain.Enums;
+
+namespace DockScripter.Domain.Dtos.Requests;
 
 public class ScriptRequestDto
 {
-    public string Name { get; set; }
-    public string Description { get; set; }
+    [Required] public string Name { get; set; }
+    [Required] public string Description { get; set; }
+    [Required] public string FilePath { get; set; }
+    [Required] public string Language { get; set; }
 }

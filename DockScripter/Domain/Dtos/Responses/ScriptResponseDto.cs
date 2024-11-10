@@ -7,6 +7,6 @@ public class ScriptResponseDto
     public string Description { get; set; }
     public string Language { get; set; }
     public string Status { get; set; }
-    public DateTime CreatedAt { get; set; }
+    public DateTime CreationDateTimeUtc { get; set; }
     public DateTime? LastExecutedAt { get; set; }
 }

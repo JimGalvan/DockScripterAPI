@@ -1,14 +1,15 @@
 ﻿using DockScripter.Domain.Dtos.Requests;
 using DockScripter.Domain.Dtos.Responses;
-using DockScripter.Domain.Entities;
-using DockScripter.Domain.Enums;
 using DockScripter.Services;
+using DockScripter.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DockScripter.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class ScriptController : ControllerBase
 {
     private readonly IScriptService _scriptService;
@@ -21,23 +22,16 @@ public class ScriptController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateScript(ScriptRequestDto scriptDto, CancellationToken cancellationToken)
     {
-        var script = new ScriptEntity
-        {
-            Name = scriptDto.Name,
-            Description = scriptDto.Description,
-            Language = ScriptLanguage.Python
-        };
+        var createdScript = await _scriptService.CreateScriptAsync(scriptDto, HttpContext, cancellationToken);
 
-        await _scriptService.CreateScriptAsync(script, cancellationToken);
-        
-        return CreatedAtAction(nameof(GetScript), new { id = script.Id }, new ScriptResponseDto
+        return CreatedAtAction(nameof(GetScript), new { id = createdScript.Id }, new ScriptResponseDto
         {
-            Id = script.Id,
-            Name = script.Name,
-            Description = script.Description,
-            Language = script.Language.ToString(),
-            Status = script.Status.ToString(),
-            CreatedAt = script.CreatedAt
+            Id = createdScript.Id,
+            Name = createdScript.Name,
+            Description = createdScript.Description!,
+            Language = createdScript.Language.ToString(),
+            Status = createdScript.Status.ToString(),
+            CreationDateTimeUtc = createdScript.CreationDateTimeUtc
         });
     }
 
@@ -55,7 +49,7 @@ public class ScriptController : ControllerBase
             Description = script.Description,
             Language = script.Language.ToString(),
             Status = script.Status.ToString(),
-            CreatedAt = script.CreatedAt,
+            CreationDateTimeUtc = script.CreationDateTimeUtc,
             LastExecutedAt = script.LastExecutedAt
         };
     }

@@ -15,9 +15,7 @@ public class EnvironmentEntity : BaseEntity
     public EnvironmentStatus Status { get; set; } = EnvironmentStatus.Initializing;
 
     public string? ContainerId { get; set; } // Docker container ID
-
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
+    
     // Relationships
     [Required]
     public Guid UserId { get; set; }
