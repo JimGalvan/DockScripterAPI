@@ -31,6 +31,8 @@ builder.Services.AddScoped<IScriptService, ScriptService>();
 builder.Services.AddScoped<ScriptRepository>();
 builder.Services.AddScoped<IExecutionService, ExecutionService>();
 builder.Services.AddScoped<ExecutionResultRepository>();
+builder.Services.AddScoped<DockerService>();
+builder.Services.AddScoped<GlobalExceptionFilter>();
 
 
 // DB context
