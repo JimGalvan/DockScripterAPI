@@ -25,6 +25,13 @@ builder.Services.AddLogging();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITokenBlacklistService, TokenBlacklistService>();
+builder.Services.AddScoped<IEnvironmentService, EnvironmentService>();
+builder.Services.AddScoped<EnvironmentRepository>();
+builder.Services.AddScoped<IScriptService, ScriptService>();
+builder.Services.AddScoped<ScriptRepository>();
+builder.Services.AddScoped<IExecutionResultService, ExecutionResultService>();
+builder.Services.AddScoped<ExecutionResultRepository>();
+
 
 // DB context
 builder.Services.AddDbContext<DataContext>(options =>

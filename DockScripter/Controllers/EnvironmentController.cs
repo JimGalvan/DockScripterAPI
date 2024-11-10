@@ -2,12 +2,14 @@
 using DockScripter.Domain.Dtos.Responses;
 using DockScripter.Domain.Entities;
 using DockScripter.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DockScripter.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class EnvironmentController : ControllerBase
 {
     private readonly IEnvironmentService _environmentService;
@@ -21,9 +23,12 @@ public class EnvironmentController : ControllerBase
     public async Task<IActionResult> InitializeEnvironment(EnvironmentRequestDTO environmentDto,
         CancellationToken cancellationToken)
     {
+        var userId = ControllerUtils.GetUserIdFromToken(this);
+
         var environment = new EnvironmentEntity
         {
-            EnvironmentName = environmentDto.EnvironmentName
+            EnvironmentName = environmentDto.EnvironmentName,
+            UserId = userId
         };
 
         await _environmentService.InitializeEnvironmentAsync(environment, cancellationToken);

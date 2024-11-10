@@ -1,8 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using DockScripter.Domain.Enums;
 
 namespace DockScripter.Domain.Entities;
 
+[Table("EnvironmentEntities")]
 public class EnvironmentEntity : BaseEntity
 {
     [Required]
