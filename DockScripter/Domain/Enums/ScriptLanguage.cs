@@ -1,7 +1,6 @@
 ﻿namespace DockScripter.Domain.Enums;
 
-public enum UserRole
+public enum ScriptLanguage
 {
-    User,
-    Owner
+    Python
 }
