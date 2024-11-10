@@ -7,15 +7,14 @@ namespace DockScripter.Domain.Entities;
 [Table("ExecutionResultEntities")]
 public class ExecutionResultEntity : BaseEntity
 {
-    [Required] public string Output { get; set; } // Stores the output of the script execution
+    [Required] [MaxLength(1024)] public string? Output { get; init; }
 
-    public string? ErrorOutput { get; set; } // Stores any error output if the script fails
+    [MaxLength(512)] public string? ErrorOutput { get; set; }
 
-    [Required] public DateTime ExecutedAt { get; set; } = DateTime.UtcNow;
+    [Required] public DateTime ExecutedAt { get; init; } = DateTime.UtcNow;
 
-    // Relationships
-    [Required] public Guid ScriptId { get; set; } // Foreign key linking to the executed script
-    public ScriptEntity Script { get; set; }
+    [Required] public Guid ScriptId { get; init; }
+    public ScriptEntity? Script { get; set; }
 
-    public ExecutionStatus Status { get; set; } = ExecutionStatus.Pending;
+    public ExecutionStatus Status { get; init; } = ExecutionStatus.Pending;
 }

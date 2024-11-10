@@ -5,9 +5,9 @@ namespace DockScripter.Domain.Entities;
 
 public class UserEntity : BaseEntity
 {
-    [Required] [MaxLength(50)] public string FirstName { get; set; }
+    [Required] [MaxLength(50)] public string? FirstName { get; init; }
 
-    [Required] [MaxLength(50)] public string LastName { get; set; }
+    [Required] [MaxLength(50)] public string? LastName { get; init; }
 
     public byte[]? PasswordHash { get; init; }
     public byte[]? PasswordSalt { get; init; }
@@ -15,9 +15,9 @@ public class UserEntity : BaseEntity
     [Required]
     [EmailAddress]
     [MaxLength(100)]
-    public string Email { get; init; }
+    public string? Email { get; init; }
 
     // Relationships
-    public ICollection<ScriptEntity> Scripts { get; set; } = new List<ScriptEntity>();
-    public ICollection<EnvironmentEntity> Environments { get; set; } = new List<EnvironmentEntity>();
+    public ICollection<ScriptEntity> Scripts { get; init; } = new List<ScriptEntity>();
+    public ICollection<EnvironmentEntity> Environments { get; init; } = new List<EnvironmentEntity>();
 }

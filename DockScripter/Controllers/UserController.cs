@@ -1,10 +1,13 @@
 ﻿using DockScripter.Domain.Dtos.Responses;
 using DockScripter.Domain.Entities;
 using DockScripter.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
+[Authorize]
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;

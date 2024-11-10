@@ -7,7 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace DockScripter.Controllers;
 
 [ApiController]
-[Route("api/[controller]")]
+[ApiVersion("1.0")]
+[Route("api/v{version:apiVersion}/[controller]")]
 [Authorize]
 public class EnvironmentController : ControllerBase
 {
