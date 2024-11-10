@@ -1,4 +1,4 @@
-﻿namespace ExpenseTrackerAPI.Dtos;
+﻿namespace DockScripter.Domain.Dtos.Responses;
 
 public class ErrorResponseDto
 {

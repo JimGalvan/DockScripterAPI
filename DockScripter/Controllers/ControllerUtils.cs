@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ParkOnyx.Controllers;
+namespace DockScripter.Controllers;
 
 public class ControllerUtils
 {

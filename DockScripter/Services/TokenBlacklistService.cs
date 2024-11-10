@@ -1,7 +1,7 @@
 ﻿using System.Collections.Concurrent;
-using ParkOnyx.Services.Interfaces;
+using DockScripter.Services.Interfaces;
 
-namespace ParkOnyx.Services
+namespace DockScripter.Services
 {
     public class TokenBlacklistService : ITokenBlacklistService
     {

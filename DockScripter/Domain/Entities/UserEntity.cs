@@ -1,6 +1,7 @@
-﻿using ParkOnyx.Domain.Enums;
+﻿using DockScripter.Domain.Entities;
+using DockScripter.Domain.Enums;
 
-namespace ParkOnyx.Entities;
+namespace DockScripter.Domain.Entities;
 
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -21,6 +22,4 @@ public class UserEntity : BaseEntity
     [Required] public List<UserRole> Roles { get; init; } = new();
 
     // Relationships
-    public ICollection<ReservationEntity>? Reservations { get; set; }
-    public ICollection<ParkingLotEntity>? OwnedParkingLots { get; set; }
 }

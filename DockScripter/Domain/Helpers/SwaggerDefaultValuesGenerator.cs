@@ -1,4 +1,4 @@
-﻿namespace ParkOnyx.Domain.Helpers;
+﻿namespace DockScripter.Domain.Helpers;
 
 public static class SwaggerDefaultValuesGenerator
 {

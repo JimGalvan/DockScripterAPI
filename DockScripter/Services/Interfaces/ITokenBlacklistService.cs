@@ -1,4 +1,4 @@
-﻿namespace ParkOnyx.Services.Interfaces;
+﻿namespace DockScripter.Services.Interfaces;
 
 public interface ITokenBlacklistService
 {

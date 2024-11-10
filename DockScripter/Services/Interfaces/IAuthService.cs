@@ -1,6 +1,6 @@
-﻿using ParkOnyx.Domain.Dtos.Requests;
+﻿using DockScripter.Domain.Dtos.Requests;
 
-namespace ParkOnyx.Services.Interfaces;
+namespace DockScripter.Services.Interfaces;
 
 public interface IAuthService
 {

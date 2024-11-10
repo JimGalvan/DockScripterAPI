@@ -1,18 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.IdentityModel.Tokens;
-using ParkOnyx.Domain.Dtos.Requests;
-using ParkOnyx.Entities;
-using ParkOnyx.Services.Interfaces;
+﻿using Microsoft.IdentityModel.Tokens;
+using DockScripter.Domain.Dtos.Requests;
+using DockScripter.Services.Interfaces;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using ParkOnyx.Domain.Enums;
-using ParkOnyx.Repositories;
-using ParkOnyx.Repositories.Interfaces;
+using DockScripter.Domain.Entities;
+using DockScripter.Domain.Enums;
+using DockScripter.Repositories.Interfaces;
 
-namespace ParkOnyx.Services
+namespace DockScripter.Services
 {
     public class AuthService : IAuthService
     {

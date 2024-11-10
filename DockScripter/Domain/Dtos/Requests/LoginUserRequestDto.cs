@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ParkOnyx.Domain.Dtos.Requests;
+namespace DockScripter.Domain.Dtos.Requests;
 
 public class LoginUserRequestDto
 {

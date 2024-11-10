@@ -1,4 +1,6 @@
-﻿namespace ParkOnyx.Entities;
+﻿using DockScripter.Entities;
+
+namespace DockScripter.Domain.Entities;
 
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

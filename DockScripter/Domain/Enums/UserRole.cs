@@ -1,4 +1,4 @@
-﻿namespace ParkOnyx.Domain.Enums;
+﻿namespace DockScripter.Domain.Enums;
 
 public enum UserRole
 {

@@ -1,6 +1,6 @@
-﻿using ParkOnyx.Entities;
+﻿using DockScripter.Domain.Entities;
 
-namespace ParkOnyx.Repositories.Interfaces
+namespace DockScripter.Repositories.Interfaces
 {
     public interface IUserRepository : IBaseRepository<UserEntity>
     {

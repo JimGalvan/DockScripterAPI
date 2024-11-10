@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Net;
-using ExpenseTrackerAPI.Dtos;
+using DockScripter.Domain.Dtos.Responses;
 
 public class GlobalExceptionFilter : IExceptionFilter
 {

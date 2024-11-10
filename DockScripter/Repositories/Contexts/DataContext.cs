@@ -1,7 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using ParkOnyx.Entities;
+﻿using DockScripter.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using DockScripter.Entities;
 
-namespace ParkOnyx.Repositories.Contexts;
+namespace DockScripter.Repositories.Contexts;
 
 public class DataContext : DbContext
 {
@@ -10,7 +11,4 @@ public class DataContext : DbContext
     }
 
     public DbSet<UserEntity> UserEntities { get; init; }
-    public DbSet<ReservationEntity> ReservationEntities { get; init; }
-    public DbSet<ParkingLotEntity> ParkingLotEntities { get; init; }
-    public DbSet<ParkingSpotEntity> ParkingSpotEntities { get; init; }
 }

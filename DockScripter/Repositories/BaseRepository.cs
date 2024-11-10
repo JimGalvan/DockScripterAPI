@@ -1,10 +1,11 @@
 ﻿using System.Linq.Expressions;
+using DockScripter.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using ParkOnyx.Domain.Models;
-using ParkOnyx.Entities;
-using ParkOnyx.Repositories.Contexts;
+using DockScripter.Domain.Models;
+using DockScripter.Entities;
+using DockScripter.Repositories.Contexts;
 
-namespace ParkOnyx.Repositories;
+namespace DockScripter.Repositories;
 
 public abstract class BaseRepository<TEntity> where TEntity : BaseEntity
 {

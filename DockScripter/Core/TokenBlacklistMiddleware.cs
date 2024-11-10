@@ -1,6 +1,6 @@
-﻿using ParkOnyx.Services.Interfaces;
+﻿using DockScripter.Services.Interfaces;
 
-namespace DockScripterAPI.Core;
+namespace DockScripter.Core;
 
 public class TokenBlacklistMiddleware
 {

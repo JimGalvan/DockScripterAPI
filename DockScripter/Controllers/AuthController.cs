@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using ParkOnyx.Domain.Dtos.Requests;
-using ParkOnyx.Services.Interfaces;
+using DockScripter.Domain.Dtos.Requests;
+using DockScripter.Services.Interfaces;
 
-namespace ParkOnyx.Controllers
+namespace DockScripter.Controllers
 {
     [ApiController]
     [ApiVersion("1.0")]

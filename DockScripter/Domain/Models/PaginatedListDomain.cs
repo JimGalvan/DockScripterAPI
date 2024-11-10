@@ -1,4 +1,4 @@
-﻿namespace ParkOnyx.Domain.Models;
+﻿namespace DockScripter.Domain.Models;
 
 public class PaginatedListDomain<T> where T : class
 {

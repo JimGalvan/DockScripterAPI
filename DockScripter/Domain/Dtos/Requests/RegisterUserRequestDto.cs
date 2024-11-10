@@ -1,11 +1,11 @@
 ﻿using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using AutoMapper.Configuration.Annotations;
-using ParkOnyx.Domain.Enums;
-using ParkOnyx.Domain.Helpers;
+using DockScripter.Domain.Enums;
+using DockScripter.Domain.Helpers;
 using Swashbuckle.AspNetCore.Annotations;
 
-namespace ParkOnyx.Domain.Dtos.Requests
+namespace DockScripter.Domain.Dtos.Requests
 {
     public class RegisterUserRequestDto
     {

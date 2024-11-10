@@ -1,8 +1,9 @@
 ﻿using System.Linq.Expressions;
-using ParkOnyx.Domain.Models;
-using ParkOnyx.Entities;
+using DockScripter.Domain.Entities;
+using DockScripter.Domain.Models;
+using DockScripter.Entities;
 
-namespace ParkOnyx.Repositories.Interfaces;
+namespace DockScripter.Repositories.Interfaces;
 
 public interface IBaseRepository<TEntity> where TEntity : BaseEntity
 {
