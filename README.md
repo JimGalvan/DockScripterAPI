@@ -50,6 +50,18 @@ DockScripter allows users to execute scripts in isolated Docker containers. Here
 - **Register**: `/api/v1/auth/register`
 - **Login**: `/api/v1/auth/login`
 
+### Users
+- **Get User**: `/api/v1/user/{id}`
+
+### Execution Results
+- **Get Execution Result**: `/api/v1/executionresult/{id}`
+
+### Environments
+- **Create Environment**: `/api/v1/environment`
+- **Get Environment**: `/api/v1/environment/{id}`
+- **Update Environment**: `/api/v1/environment/{id}`
+- **Delete Environment**: `/api/v1/environment/{id}`
+
 ### Scripts
 - **Create Script**: `/api/v1/script`
 - **Upload File**: `/api/v1/script/{scriptId}/upload`
