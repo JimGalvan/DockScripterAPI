@@ -34,21 +34,7 @@ DockScripter allows users to execute scripts in isolated Docker containers. Here
 ---
 
 ## Installation and Setup
-
-### Prerequisites
-
-- .NET Core SDK
-- Docker
-- AWS account with an S3 bucket
-- AWS IAM user with S3 access (Access Key and Secret Key required)
-
-### Setup Instructions
-
-1. **Clone the Repository**:
-   ```bash
-   git clone https://github.com/your-username/DockScripter.git
-   cd DockScripter
-
+(Will provide)
 ## Project Structure
 
 - **Controllers**: Define API endpoints for managing scripts, files, and executions.
