@@ -33,6 +33,8 @@ builder.Services.AddScoped<IExecutionService, ExecutionService>();
 builder.Services.AddScoped<ExecutionResultRepository>();
 builder.Services.AddScoped<DockerService>();
 builder.Services.AddScoped<GlobalExceptionFilter>();
+builder.Services.AddScoped<IS3Service, S3Service>();
+builder.Services.AddScoped<ScriptFileRepository>();
 
 
 // DB context

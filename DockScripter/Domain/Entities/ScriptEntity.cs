@@ -8,18 +8,15 @@ namespace DockScripter.Domain.Entities;
 public class ScriptEntity : BaseEntity
 {
     [Required] [MaxLength(100)] public string? Name { get; set; }
-
-    [Required] [MaxLength(260)] public string? FilePath { get; set; } 
-
-    [Required] public ScriptLanguage Language { get; set; } 
-
+    public string? EntryFilePath { get; set; } // Path to the main script file within the downloaded files
+    [Required] [MaxLength(260)] public string? FilePath { get; set; }
+    [Required] public ScriptLanguage Language { get; set; }
     [MaxLength(500)] public string? Description { get; set; }
-
-    // Relationships
-    [Required] public Guid UserId { get; init; } 
-    public UserEntity? User { get; init; }
-
-    // For tracking execution status
     public ScriptStatus Status { get; init; } = ScriptStatus.Created;
     public DateTime? LastExecutedAt { get; init; }
+
+    // Relationships
+    [Required] public Guid UserId { get; init; }
+    public UserEntity? User { get; init; }
+    public ICollection<ScriptFile> Files { get; set; } = new List<ScriptFile>();
 }

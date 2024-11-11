@@ -11,10 +11,34 @@ namespace DockScripter.Services;
 public class ScriptService : IScriptService
 {
     private readonly ScriptRepository _scriptRepository;
+    private readonly ScriptFileRepository _scriptFileRepository;
 
-    public ScriptService(ScriptRepository scriptRepository)
+    public ScriptService(ScriptRepository scriptRepository, ScriptFileRepository scriptFileRepository)
     {
         _scriptRepository = scriptRepository;
+        _scriptFileRepository = scriptFileRepository;
+    }
+
+
+    public async Task AddScriptFileAsync(Guid scriptId, string s3Key, CancellationToken cancellationToken)
+    {
+        // Check if the script exists
+        var script = await _scriptRepository.SelectById(scriptId, cancellationToken);
+        if (script == null)
+        {
+            throw new ArgumentException("Script not found.");
+        }
+
+        // Create a new ScriptFile entry
+        var scriptFile = new ScriptFile
+        {
+            ScriptId = scriptId,
+            S3Key = s3Key
+        };
+
+        // Add the ScriptFile to the database and save changes
+        await _scriptFileRepository.AddAsync(scriptFile, cancellationToken);
+        await _scriptFileRepository.SaveChangesAsync(cancellationToken);
     }
 
     public async Task<ScriptEntity> CreateScriptAsync(ScriptRequestDto scriptDto, HttpContext httpContext,

@@ -13,4 +13,5 @@ public class DataContext : DbContext
     public DbSet<EnvironmentEntity> EnvironmentEntities { get; init; }
     public DbSet<ExecutionResultEntity> ExecutionResultEntities { get; init; }
     public DbSet<ScriptEntity> ScriptEntities { get; init; }
+    public DbSet<ScriptFile> ScriptFiles { get; init; }
 }

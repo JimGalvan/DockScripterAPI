@@ -15,11 +15,34 @@ public class ScriptController : ControllerBase
 {
     private readonly IExecutionService _executionService;
     private readonly IScriptService _scriptService;
+    private readonly IS3Service _s3Service;
 
-    public ScriptController(IExecutionService executionService, IScriptService scriptService)
+    public ScriptController(IExecutionService executionService, IScriptService scriptService, IS3Service s3Service)
     {
         _executionService = executionService;
         _scriptService = scriptService;
+        _s3Service = s3Service;
+    }
+
+    [HttpPost("{scriptId}/upload")]
+    public async Task<IActionResult> UploadFile(Guid scriptId, IFormFile file, CancellationToken cancellationToken)
+    {
+        if (file.Length == 0)
+            return BadRequest($"Invalid File. File length is {file.Length}.");
+
+        // Generate a unique file key for S3
+        var s3Key = $"{scriptId}/{file.FileName}";
+
+        // Upload the file to S3
+        using (var stream = file.OpenReadStream())
+        {
+            await _s3Service.UploadFileAsync(stream, s3Key);
+        }
+
+        // Add file metadata to the script in the database
+        await _scriptService.AddScriptFileAsync(scriptId, s3Key, cancellationToken);
+
+        return Ok(new { Message = "File uploaded successfully.", FileKey = s3Key });
     }
 
     [HttpPost("execute/{scriptId}")]
