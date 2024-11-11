@@ -24,7 +24,7 @@ builder.Services.AddLogging();
 
 // Add controllers
 builder.Services.AddAWSService<IAmazonS3>();
-builder.Services.AddScoped<IS3Service, S3Service>();
+builder.Services.AddSingleton<IS3Service, S3Service>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITokenBlacklistService, TokenBlacklistService>();
@@ -37,6 +37,7 @@ builder.Services.AddScoped<ExecutionResultRepository>();
 builder.Services.AddScoped<DockerService>();
 builder.Services.AddScoped<GlobalExceptionFilter>();
 builder.Services.AddScoped<ScriptFileRepository>();
+
 
 // DB context
 builder.Services.AddDbContext<DataContext>(options =>

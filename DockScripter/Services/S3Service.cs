@@ -1,4 +1,5 @@
-﻿using Amazon.S3;
+﻿using Amazon;
+using Amazon.S3;
 using Amazon.S3.Model;
 using DockScripter.Services.Interfaces;
 
@@ -7,15 +8,20 @@ public class S3Service : IS3Service
     private readonly IAmazonS3 _s3Client;
     private readonly string _bucketName;
 
-    public S3Service(IAmazonS3 s3Client, IConfiguration configuration)
+    public S3Service(IConfiguration configuration)
     {
-        _s3Client = s3Client;
-        _bucketName = configuration["S3BucketName"]!;
+        var awsAccessKeyId = configuration["AWS:AccessKeyId"];
+        var awsSecretAccessKey = configuration["AWS:SecretAccessKey"];
+        var awsRegion = configuration["AWS:Region"];
 
-        if (string.IsNullOrEmpty(_bucketName))
+        if (string.IsNullOrEmpty(awsAccessKeyId) || string.IsNullOrEmpty(awsSecretAccessKey) ||
+            string.IsNullOrEmpty(awsRegion))
         {
-            throw new Exception($"S3 bucket name is not configured. Bucket: '{_bucketName}' is invalid.");
+            throw new Exception("AWS credentials or region are not configured properly.");
         }
+
+        _s3Client = new AmazonS3Client(awsAccessKeyId, awsSecretAccessKey, RegionEndpoint.GetBySystemName(awsRegion));
+        _bucketName = configuration["S3BucketName"] ?? throw new Exception("S3 bucket name is not configured.");
     }
 
     public async Task<string> UploadFileAsync(Stream fileStream, string fileName)
