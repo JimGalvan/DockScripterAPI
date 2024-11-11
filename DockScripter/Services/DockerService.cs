@@ -1,52 +1,54 @@
 ﻿using Docker.DotNet;
 using Docker.DotNet.Models;
+using DockScripter.Domain.Entities;
+using DockScripter.Services.Interfaces;
 
 namespace DockScripter.Services;
 
 public class DockerService
 {
     private readonly DockerClient _client;
+    private readonly IS3Service _s3Service;
 
-    public DockerService()
+    public DockerService(IS3Service s3Service)
     {
-        // _client = new DockerClientConfiguration(new Uri("unix:///var/run/docker.sock")).CreateClient();
+        _s3Service = s3Service;
         _client = new DockerClientConfiguration().CreateClient();
     }
 
-    public async Task<string> CreateContainerAsync(string scriptFilePath, CancellationToken cancellationToken)
+    public async Task<string> ExecuteScriptWithFilesAsync(string localDirectory, string entryFilePath,
+        CancellationToken cancellationToken)
     {
-        // 1. Create the Docker volume
-        var volumeName = "script_volume";
-        await _client.Volumes.CreateAsync(new VolumesCreateParameters { Name = volumeName }, cancellationToken);
-
-        // 2. Pull the Python image if necessary
+        // Pull the Python image if necessary
         await PullPythonImageAsync("python", "3.8-slim", cancellationToken);
 
-        // 3. Create the container using the volume
+        // Create and start a container, mounting the local directory with downloaded files
         var response = await _client.Containers.CreateContainerAsync(new CreateContainerParameters
         {
             Image = "python:3.8-slim",
-            Cmd = new[] { "python", "/scripts/test_script.py" },
+            Cmd = new[] { "python", $"/app/{entryFilePath}" }, // Run the entry script file
             HostConfig = new HostConfig
             {
                 Mounts = new List<Mount>
                 {
                     new Mount
                     {
-                        Type = "volume",
-                        Source = volumeName,
-                        Target = "/scripts"
+                        Type = "bind",
+                        Source = localDirectory,
+                        Target = "/app" // Mounting the directory to /app in the container
                     }
                 },
+                AutoRemove = true,
                 Memory = 256 * 1024 * 1024,
                 NanoCPUs = 500000000
             }
         }, cancellationToken);
 
-        // 4. Copy the script content to the volume
+        await _client.Containers.StartContainerAsync(response.ID, new ContainerStartParameters(), cancellationToken);
 
         return response.ID;
     }
+
 
     private async Task PullPythonImageAsync(string image, string tag, CancellationToken cancellationToken)
     {

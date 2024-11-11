@@ -1,4 +1,5 @@
 using System.Text;
+using Amazon.S3;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,8 @@ builder.Services.AddControllers(options => { options.Filters.Add<GlobalException
 builder.Services.AddLogging();
 
 // Add controllers
+builder.Services.AddAWSService<IAmazonS3>();
+builder.Services.AddScoped<IS3Service, S3Service>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITokenBlacklistService, TokenBlacklistService>();
@@ -33,9 +36,7 @@ builder.Services.AddScoped<IExecutionService, ExecutionService>();
 builder.Services.AddScoped<ExecutionResultRepository>();
 builder.Services.AddScoped<DockerService>();
 builder.Services.AddScoped<GlobalExceptionFilter>();
-builder.Services.AddScoped<IS3Service, S3Service>();
 builder.Services.AddScoped<ScriptFileRepository>();
-
 
 // DB context
 builder.Services.AddDbContext<DataContext>(options =>

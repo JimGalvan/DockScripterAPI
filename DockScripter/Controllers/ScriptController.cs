@@ -30,16 +30,13 @@ public class ScriptController : ControllerBase
         if (file.Length == 0)
             return BadRequest($"Invalid File. File length is {file.Length}.");
 
-        // Generate a unique file key for S3
         var s3Key = $"{scriptId}/{file.FileName}";
 
-        // Upload the file to S3
-        using (var stream = file.OpenReadStream())
+        await using (var stream = file.OpenReadStream())
         {
             await _s3Service.UploadFileAsync(stream, s3Key);
         }
 
-        // Add file metadata to the script in the database
         await _scriptService.AddScriptFileAsync(scriptId, s3Key, cancellationToken);
 
         return Ok(new { Message = "File uploaded successfully.", FileKey = s3Key });
