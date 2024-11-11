@@ -7,6 +7,6 @@ public class ScriptRequestDto
 {
     [Required] public string Name { get; set; }
     [Required] public string Description { get; set; }
-    [Required] public string FilePath { get; set; }
+    [Required] public string EntryFilePath { get; set; }
     [Required] public string Language { get; set; }
 }

@@ -71,7 +71,8 @@ public class ApiIntegrationTests
         {
             Name = TestDataGenerator.GenerateScriptName(),
             Description = TestDataGenerator.GenerateScriptDescription(),
-            EntryFilePath = "test_script.py" // Specify the entry file path
+            EntryFilePath = "test_script.py",
+            language = "Python"
         };
 
         var request = new HttpRequestMessage(HttpMethod.Post, "script")

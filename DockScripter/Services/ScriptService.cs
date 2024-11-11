@@ -59,7 +59,7 @@ public class ScriptService : IScriptService
         {
             Name = scriptDto.Name,
             Description = scriptDto.Description,
-            FilePath = scriptDto.FilePath,
+            EntryFilePath = scriptDto.EntryFilePath,
             Language = language,
             UserId = userId
         };
@@ -92,7 +92,7 @@ public class ScriptService : IScriptService
 
         script.Name = scriptDto.Name;
         script.Description = scriptDto.Description;
-        script.FilePath = scriptDto.FilePath;
+        script.EntryFilePath = scriptDto.EntryFilePath;
         script.Language = language;
 
         await _scriptRepository.SaveChangesAsync(cancellationToken);
