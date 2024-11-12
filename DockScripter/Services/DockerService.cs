@@ -42,26 +42,36 @@ public class DockerService
                         Target = "/app" // Mounting the directory to /app in the container
                     }
                 },
-                AutoRemove = true,
+                AutoRemove = false,
                 Memory = 256 * 1024 * 1024,
                 NanoCPUs = 500000000
             }
         }, cancellationToken);
 
-        await _client.Containers.StartContainerAsync(response.ID, new ContainerStartParameters(), cancellationToken);
+        var result =
+            await _client.Containers.StartContainerAsync(response.ID, new ContainerStartParameters(),
+                cancellationToken);
+
+        if (!result)
+            throw new Exception("Failed to start the container.");
 
         return response.ID;
     }
 
     public async Task<MultiplexedStream> GetContainerLogsAsync(string containerId, CancellationToken cancellationToken)
     {
-        return await _client.Containers.GetContainerLogsAsync(containerId, false, new ContainerLogsParameters
+        var result = await _client.Containers.GetContainerLogsAsync(containerId, false, new ContainerLogsParameters
         {
             ShowStdout = true,
             ShowStderr = true,
             Follow = true,
             Timestamps = false
         }, cancellationToken);
+
+        if (result == null)
+            throw new Exception("Failed to get container logs.");
+
+        return result;
     }
 
     private async Task PullPythonImageAsync(string image, string tag, CancellationToken cancellationToken)
