@@ -31,6 +31,7 @@ public class ExecutionService : IExecutionService
         // Create a temporary directory to store the script files
         var tempDirectory = Path.Combine(Path.GetTempPath(), script.Id.ToString());
         Directory.CreateDirectory(tempDirectory);
+        var containerId = string.Empty;
 
         try
         {
@@ -38,23 +39,61 @@ public class ExecutionService : IExecutionService
             foreach (var scriptFile in script.Files)
             {
                 var filePath = Path.Combine(tempDirectory, Path.GetFileName(scriptFile.S3Key));
-                using (var downloadStream = await _s3Service.DownloadFileAsync(scriptFile.S3Key))
-                using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+                await using (var downloadStream = await _s3Service.DownloadFileAsync(scriptFile.S3Key))
+                await using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
                 {
                     await downloadStream.CopyToAsync(fileStream);
                 }
             }
 
-            // Step 2: Execute the main script file in a Docker container
-            var containerId =
-                await _dockerService.ExecuteScriptWithFilesAsync(tempDirectory, script.EntryFilePath,
+            // Step 2: Capture output and status
+
+            // Create paths for stdout and stderr log files
+            var outputFilePath = Path.Combine(tempDirectory, "stdout.log");
+            var errorFilePath = Path.Combine(tempDirectory, "stderr.log");
+
+            // Open file streams for output and error logging
+            await using var outputFileStream = new StreamWriter(outputFilePath);
+            await using var errorFileStream = new StreamWriter(errorFilePath);
+
+            containerId =
+                await _dockerService.ExecuteScriptWithFilesAsync(tempDirectory, script.EntryFilePath!,
                     cancellationToken);
 
-            // Step 3: Capture output and status
-            result.Output = "Execution started in Docker container";
-            result.Status = ExecutionStatus.Success;
+            using var logStream = await _dockerService.GetContainerLogsAsync(containerId, cancellationToken);
+            using var memoryStream = new MemoryStream();
+            await logStream.CopyFromAsync(memoryStream, cancellationToken);
+            memoryStream.Position = 0;
+            using var reader = new StreamReader(memoryStream);
 
-            // Optional: Implement further result fetching from Docker logs or output streams
+            // Write log lines directly to files
+            while (!reader.EndOfStream)
+            {
+                var line = await reader.ReadLineAsync();
+                if (line != null)
+                {
+                    if (line.Contains("ERROR"))
+                    {
+                        await errorFileStream.WriteLineAsync(line);
+                    }
+                    else
+                    {
+                        await outputFileStream.WriteLineAsync(line);
+                    }
+                }
+            }
+
+            // Step 3: Upload logs to S3
+            var outputS3Key = $"logs/{script.Id}/stdout.log";
+            var errorS3Key = $"logs/{script.Id}/stderr.log";
+
+            var outputS3Path = await _s3Service.UploadLogFileAsync(outputFilePath, outputS3Key);
+            var errorS3Path = await _s3Service.UploadLogFileAsync(errorFilePath, errorS3Key);
+
+            // Store S3 paths in ExecutionResultEntity
+            result.Status = ExecutionStatus.Success;
+            result.OutputFilePath = outputS3Path;
+            result.ErrorOutputFilePath = errorS3Path;
         }
         catch (Exception ex)
         {
@@ -63,9 +102,13 @@ public class ExecutionService : IExecutionService
         }
         finally
         {
-            // Cleanup the temporary directory after execution
+            // Cleanup the temporary directory and local log files after uploading to S3
             if (Directory.Exists(tempDirectory))
                 Directory.Delete(tempDirectory, true);
+
+            // Cleanup Docker container
+            if (!string.IsNullOrEmpty(containerId))
+                await _dockerService.StopContainerAsync(containerId, cancellationToken);
         }
 
         // Save execution result to the database
@@ -74,6 +117,7 @@ public class ExecutionService : IExecutionService
 
         return result;
     }
+
 
     public async Task<ExecutionResultEntity?> GetResultsByScriptId(Guid scriptId, CancellationToken cancellationToken)
     {

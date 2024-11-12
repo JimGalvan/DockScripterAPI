@@ -1,4 +1,5 @@
-﻿using Amazon;
+﻿using System.Text;
+using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
 using DockScripter.Services.Interfaces;
@@ -42,6 +43,12 @@ public class S3Service : IS3Service
         }
 
         return fileName;
+    }
+
+    public async Task<string> UploadLogFileAsync(string logContent, string fileName)
+    {
+        var logStream = new MemoryStream(Encoding.UTF8.GetBytes(logContent));
+        return await UploadFileAsync(logStream, fileName);
     }
 
     public async Task<Stream> DownloadFileAsync(string fileKey)

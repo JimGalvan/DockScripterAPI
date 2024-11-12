@@ -1,7 +1,11 @@
 ﻿using Docker.DotNet;
 using Docker.DotNet.Models;
-using DockScripter.Domain.Entities;
 using DockScripter.Services.Interfaces;
+using Docker.DotNet.Models;
+using Docker.DotNet;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace DockScripter.Services;
 
@@ -49,6 +53,16 @@ public class DockerService
         return response.ID;
     }
 
+    public async Task<MultiplexedStream> GetContainerLogsAsync(string containerId, CancellationToken cancellationToken)
+    {
+        return await _client.Containers.GetContainerLogsAsync(containerId, false, new ContainerLogsParameters
+        {
+            ShowStdout = true,
+            ShowStderr = true,
+            Follow = true,
+            Timestamps = false
+        }, cancellationToken);
+    }
 
     private async Task PullPythonImageAsync(string image, string tag, CancellationToken cancellationToken)
     {
