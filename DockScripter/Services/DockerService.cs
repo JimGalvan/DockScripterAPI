@@ -30,12 +30,13 @@ public class DockerService
         var response = await _client.Containers.CreateContainerAsync(new CreateContainerParameters
         {
             Image = "python:3.8-slim",
-            Cmd = new[] { "python", $"/app/{entryFilePath}" }, // Run the entry script file
+            // Cmd = new[] { "python", $"/app/{entryFilePath}" }, // Run the entry script file
+            Cmd = new[] { "sh", "-c", "tail -f /dev/null" }, // Keeps the container running indefinitely
             HostConfig = new HostConfig
             {
                 Mounts = new List<Mount>
                 {
-                    new Mount
+                    new()
                     {
                         Type = "bind",
                         Source = localDirectory,
