@@ -39,6 +39,12 @@ public class ScriptService : IScriptService
         // Add the ScriptFile to the database and save changes
         await _scriptFileRepository.AddAsync(scriptFile, cancellationToken);
         await _scriptFileRepository.SaveChangesAsync(cancellationToken);
+
+        // Add the ScriptFile to the Script entity
+        script.Files.Add(scriptFile);
+        await _scriptRepository.SaveChangesAsync(cancellationToken);
+
+        var result = await _scriptRepository.SelectById(scriptId, cancellationToken);
     }
 
     public async Task<ScriptEntity> CreateScriptAsync(ScriptRequestDto scriptDto, HttpContext httpContext,
@@ -72,7 +78,8 @@ public class ScriptService : IScriptService
 
     public async Task<ScriptEntity?> GetScriptByIdAsync(Guid scriptId, CancellationToken cancellationToken)
     {
-        return await _scriptRepository.SelectById(scriptId, cancellationToken);
+        var script = await _scriptRepository.SelectById(scriptId, cancellationToken);
+        return script;
     }
 
     public async Task<ScriptEntity?> UpdateScriptAsync(Guid scriptId, ScriptRequestDto scriptDto,

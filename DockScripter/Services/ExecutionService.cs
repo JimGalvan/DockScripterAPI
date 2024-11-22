@@ -33,6 +33,16 @@ public class ExecutionService : IExecutionService
         Directory.CreateDirectory(tempDirectory);
         var containerId = string.Empty;
 
+        // If Script object doesn't have any files, return immediately
+        if (script.Files.Count == 0)
+        {
+            result.Status = ExecutionStatus.Failed;
+            result.ErrorOutput = "Script does not have any files associated with it.";
+            await _executionResultRepository.AddAsync(result, cancellationToken);
+            await _executionResultRepository.SaveChangesAsync(cancellationToken);
+            return result;
+        }
+
         try
         {
             // Step 1: Download all files associated with the script from S3

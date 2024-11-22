@@ -53,6 +53,9 @@ public class ScriptController : ControllerBase
         // Execute the script in a Docker container
         var executionResult = await _executionService.ExecuteScriptInContainerAsync(script, cancellationToken);
 
+        if (executionResult.Status == Domain.Enums.ExecutionStatus.Failed)
+            return BadRequest(new { Message = executionResult.ErrorOutput });
+
         // Return the execution result
         return Ok(new ExecutionResultResponseDto
         {

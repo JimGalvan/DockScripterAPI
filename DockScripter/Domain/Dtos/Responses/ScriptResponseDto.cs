@@ -1,4 +1,6 @@
-﻿namespace DockScripter.Domain.Dtos.Responses;
+﻿using DockScripter.Domain.Entities;
+
+namespace DockScripter.Domain.Dtos.Responses;
 
 public class ScriptResponseDto
 {
@@ -7,6 +9,8 @@ public class ScriptResponseDto
     public string Description { get; set; }
     public string Language { get; set; }
     public string Status { get; set; }
+    
+    public ICollection<ScriptFile> Files { get; set; } = new List<ScriptFile>();
     public DateTime CreationDateTimeUtc { get; set; }
     public DateTime? LastExecutedAt { get; set; }
 }
