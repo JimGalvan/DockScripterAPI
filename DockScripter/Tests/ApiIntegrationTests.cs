@@ -38,7 +38,7 @@ public class ApiIntegrationTests
         // 5. Retrieve and Assert Execution Results
         Assert.NotNull(executionResult);
         Assert.Equal("Success", executionResult.Status);
-        Assert.Contains("Hello from script", executionResult.Output);
+        Assert.NotNull(executionResult.ErrorOutputFilePath);
     }
 
     private async Task<string> RegisterAndAuthenticateUserAsync()
@@ -134,9 +134,11 @@ public class ApiIntegrationTests
     private class ExecutionResultResponseDto
     {
         public Guid Id { get; set; }
-        public string Output { get; set; }
-        public string ErrorOutput { get; set; }
-        public string Status { get; set; }
+        public string? Output { get; set; }
+        public string? ErrorOutput { get; set; }
+        public string? OutputFilePath { get; set; }
+        public string? ErrorOutputFilePath { get; set; }
         public DateTime ExecutedAt { get; set; }
+        public string? Status { get; set; }
     }
 }

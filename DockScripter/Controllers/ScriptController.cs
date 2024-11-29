@@ -61,9 +61,11 @@ public class ScriptController : ControllerBase
         {
             Id = executionResult.Id,
             Output = executionResult.Output!,
-            ErrorOutput = executionResult.ErrorOutput!,
             Status = executionResult.Status.ToString(),
-            ExecutedAt = executionResult.ExecutedAt
+            ExecutedAt = executionResult.ExecutedAt,
+            OutputFilePath = executionResult.OutputFilePath,
+            ErrorOutput = executionResult.ErrorOutput,
+            ErrorOutputFilePath = executionResult.ErrorOutputFilePath
         });
     }
 
