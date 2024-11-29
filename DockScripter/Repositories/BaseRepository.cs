@@ -50,6 +50,19 @@ public abstract class BaseRepository<TEntity> where TEntity : BaseEntity
             .FirstOrDefaultAsync(cancellationToken);
     }
 
+    public virtual async Task<TEntity?> SelectById(Guid id, CancellationToken cancellationToken,
+        params Expression<Func<TEntity, object>>[] includes)
+    {
+        IQueryable<TEntity> query = _context.Set<TEntity>();
+
+        foreach (var include in includes)
+        {
+            query = query.Include(include);
+        }
+
+        return await query.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+    }
+
     public virtual async Task<bool> AnyAsync(Expression<Func<TEntity, bool>> predicate,
         CancellationToken cancellationToken)
     {

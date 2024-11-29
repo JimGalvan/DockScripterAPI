@@ -75,7 +75,8 @@ public class ScriptController : ControllerBase
         return CreatedAtAction(nameof(GetScript), new { id = createdScript.Id }, new ScriptResponseDto
         {
             Id = createdScript.Id,
-            Name = createdScript.Name,
+            Name = createdScript.Name!,
+            EntryFilePath = createdScript.EntryFilePath!,
             Description = createdScript.Description!,
             Language = createdScript.Language.ToString(),
             Status = createdScript.Status.ToString(),
@@ -98,7 +99,8 @@ public class ScriptController : ControllerBase
             Language = script.Language.ToString(),
             Status = script.Status.ToString(),
             CreationDateTimeUtc = script.CreationDateTimeUtc,
-            LastExecutedAt = script.LastExecutedAt
+            LastExecutedAt = script.LastExecutedAt,
+            Files = script.Files
         };
     }
 

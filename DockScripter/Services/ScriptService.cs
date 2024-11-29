@@ -2,9 +2,9 @@
 using DockScripter.Domain.Entities;
 using DockScripter.Domain.Enums;
 using DockScripter.Repositories;
-using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using DockScripter.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace DockScripter.Services;
 
@@ -78,8 +78,7 @@ public class ScriptService : IScriptService
 
     public async Task<ScriptEntity?> GetScriptByIdAsync(Guid scriptId, CancellationToken cancellationToken)
     {
-        var script = await _scriptRepository.SelectById(scriptId, cancellationToken);
-        return script;
+        return await _scriptRepository.SelectById(scriptId, cancellationToken, s => s.Files);
     }
 
     public async Task<ScriptEntity?> UpdateScriptAsync(Guid scriptId, ScriptRequestDto scriptDto,
