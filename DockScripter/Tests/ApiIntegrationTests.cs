@@ -21,7 +21,7 @@ public class ApiIntegrationTests
     }
 
     [Fact]
-    public async Task HappyPathTestCase()
+    public async Task TestUserCanExecuteScript()
     {
         // 1. Register and Authenticate
         var authToken = await RegisterAndAuthenticateUserAsync();
@@ -39,6 +39,29 @@ public class ApiIntegrationTests
         Assert.NotNull(executionResult);
         Assert.Equal("Success", executionResult.Status);
         Assert.NotNull(executionResult.ErrorOutputFilePath);
+    }
+
+    [Fact]
+    public async Task TestUserCanDeleteScript()
+    {
+        // 1. Register and Authenticate
+        var authToken = await RegisterAndAuthenticateUserAsync();
+
+        // 2. Create a Script
+        var scriptId = await CreateScriptAsync(authToken);
+
+        // 3. Delete the Script
+        var request = new HttpRequestMessage(HttpMethod.Delete, $"script/{scriptId}");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+
+        var response = await _client.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+
+        // 4. Retrieve and Assert Script Deletion
+        request = new HttpRequestMessage(HttpMethod.Get, $"script/{scriptId}");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+        var getResponse = await _client.SendAsync(request);
+        Assert.Equal(System.Net.HttpStatusCode.NotFound, getResponse.StatusCode);
     }
 
     private async Task<string> RegisterAndAuthenticateUserAsync()
@@ -111,7 +134,7 @@ public class ApiIntegrationTests
 
     private async Task<ExecutionResultResponseDto> ExecuteScriptAsync(string authToken, Guid scriptId)
     {
-        var request = new HttpRequestMessage(HttpMethod.Post, $"script/execute/{scriptId}");
+        var request = new HttpRequestMessage(HttpMethod.Post, $"script/{scriptId}/execute");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 
         var response = await _client.SendAsync(request);

@@ -42,7 +42,7 @@ public class ScriptController : ControllerBase
         return Ok(new { Message = "File uploaded successfully.", FileKey = s3Key });
     }
 
-    [HttpPost("execute/{scriptId}")]
+    [HttpPost("{scriptId}/execute")]
     public async Task<IActionResult> ExecuteScriptInContainerAsync(Guid scriptId, CancellationToken cancellationToken)
     {
         // Retrieve the script to ensure it exists and is accessible to the user
