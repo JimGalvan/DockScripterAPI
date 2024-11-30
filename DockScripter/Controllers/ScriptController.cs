@@ -45,18 +45,15 @@ public class ScriptController : ControllerBase
     [HttpPost("{scriptId}/execute")]
     public async Task<IActionResult> ExecuteScriptInContainerAsync(Guid scriptId, CancellationToken cancellationToken)
     {
-        // Retrieve the script to ensure it exists and is accessible to the user
         var script = await _scriptService.GetScriptByIdAsync(scriptId, cancellationToken);
         if (script == null)
             return NotFound(new { Message = "Script not found." });
 
-        // Execute the script in a Docker container
         var executionResult = await _executionService.ExecuteScriptInContainerAsync(script, cancellationToken);
 
         if (executionResult.Status == Domain.Enums.ExecutionStatus.Failed)
             return BadRequest(new { Message = executionResult.ErrorOutput });
 
-        // Return the execution result
         return Ok(new ExecutionResultResponseDto
         {
             Id = executionResult.Id,

@@ -18,5 +18,6 @@ public class ScriptEntity : BaseEntity
     // Relationships
     [Required] public Guid UserId { get; init; }
     public UserEntity? User { get; init; }
+    public EnvironmentEntity? Environment { get; set; }
     public ICollection<ScriptFile> Files { get; set; } = new List<ScriptFile>();
 }

@@ -8,7 +8,6 @@ namespace DockScripter.Domain.Entities;
 public class EnvironmentEntity : BaseEntity
 {
     [Required] [MaxLength(50)] public string EnvironmentName { get; set; } = "Python";
-
     [Required] public EnvironmentStatus Status { get; set; } = EnvironmentStatus.Initializing;
 
     [MaxLength(64)] public string? ContainerId { get; set; }
