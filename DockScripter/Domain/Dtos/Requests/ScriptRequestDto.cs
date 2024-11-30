@@ -9,4 +9,6 @@ public class ScriptRequestDto
     [Required] public string? Description { get; set; }
     [Required] public string? EntryFilePath { get; set; }
     [Required] public string? Language { get; set; }
+    [Required] public string? DockerImage { get; set; }
+    public List<IFormFile>? Files { get; set; }
 }

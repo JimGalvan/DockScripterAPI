@@ -1,6 +1,6 @@
 ﻿namespace DockScripter.Domain.Enums;
 
-public enum EnvironmentStatus
+public enum DockerContainerStatus
 {
     NotInitialized,
     Created,

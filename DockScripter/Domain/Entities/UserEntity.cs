@@ -19,5 +19,5 @@ public class UserEntity : BaseEntity
 
     // Relationships
     public ICollection<ScriptEntity> Scripts { get; init; } = new List<ScriptEntity>();
-    public ICollection<EnvironmentEntity> Environments { get; init; } = new List<EnvironmentEntity>();
+    public ICollection<DockerContainerEntity> DockerContainers { get; init; } = new List<DockerContainerEntity>();
 }

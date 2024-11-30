@@ -16,12 +16,15 @@ public class ScriptController : ControllerBase
     private readonly IExecutionService _executionService;
     private readonly IScriptService _scriptService;
     private readonly IS3Service _s3Service;
+    private readonly IDockerContainerService _dockerContainerService;
 
-    public ScriptController(IExecutionService executionService, IScriptService scriptService, IS3Service s3Service)
+    public ScriptController(IExecutionService executionService, IScriptService scriptService, IS3Service s3Service,
+        IDockerContainerService dockerContainerService)
     {
         _executionService = executionService;
         _scriptService = scriptService;
         _s3Service = s3Service;
+        _dockerContainerService = dockerContainerService;
     }
 
     [HttpPost("{scriptId}/upload")]
@@ -69,6 +72,15 @@ public class ScriptController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateScript(ScriptRequestDto scriptDto, CancellationToken cancellationToken)
     {
+        var createDockerContainerDto = new DockerContainerRequestDto
+        {
+            DockerImage = scriptDto.DockerImage
+        };
+
+        var dockerContainer =
+            await _dockerContainerService.InitializeDockerContainerAsync(createDockerContainerDto, HttpContext,
+                cancellationToken);
+
         var createdScript = await _scriptService.CreateScriptAsync(scriptDto, HttpContext, cancellationToken);
 
         return CreatedAtAction(nameof(GetScript), new { id = createdScript.Id }, new ScriptResponseDto

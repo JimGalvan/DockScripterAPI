@@ -1,14 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using DockScripter.Domain.Dtos.Requests;
 using DockScripter.Domain.Enums;
 
 namespace DockScripter.Domain.Entities;
 
-[Table("EnvironmentEntities")]
-public class EnvironmentEntity : BaseEntity
+[Table("DockerContainerEntities")]
+public class DockerContainerEntity : BaseEntity
 {
-    [Required] [MaxLength(50)] public string EnvironmentName { get; set; } = "Untitled";
-    [Required] public EnvironmentStatus Status { get; set; } = EnvironmentStatus.NotInitialized;
+    [MaxLength(255)] public string? DockerContainerName { get; set; }
+    [Required] public DockerContainerStatus Status { get; set; } = DockerContainerStatus.NotInitialized;
     [Required] [MaxLength(255)] public string? DockerImage { get; set; }
     [MaxLength(64)] public string? ContainerId { get; set; }
 

@@ -28,13 +28,13 @@ builder.Services.AddSingleton<IS3Service, S3Service>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITokenBlacklistService, TokenBlacklistService>();
-builder.Services.AddScoped<IEnvironmentService, EnvironmentService>();
-builder.Services.AddScoped<EnvironmentRepository>();
+builder.Services.AddScoped<IDockerContainerService, DockerContainerService>();
+builder.Services.AddScoped<DockerContainerRepository>();
 builder.Services.AddScoped<IScriptService, ScriptService>();
 builder.Services.AddScoped<ScriptRepository>();
 builder.Services.AddScoped<IExecutionService, ExecutionService>();
 builder.Services.AddScoped<ExecutionResultRepository>();
-builder.Services.AddScoped<DockerService>();
+builder.Services.AddScoped<DockerClient>();
 builder.Services.AddScoped<GlobalExceptionFilter>();
 builder.Services.AddScoped<ScriptFileRepository>();
 

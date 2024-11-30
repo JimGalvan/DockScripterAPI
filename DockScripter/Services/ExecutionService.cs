@@ -6,14 +6,14 @@ using DockScripter.Services.Interfaces;
 
 public class ExecutionService : IExecutionService
 {
-    private readonly DockerService _dockerService;
+    private readonly DockerClient _dockerClient;
     private readonly IS3Service _s3Service;
     private readonly ExecutionResultRepository _executionResultRepository;
 
-    public ExecutionService(DockerService dockerService, IS3Service s3Service,
+    public ExecutionService(DockerClient dockerClient, IS3Service s3Service,
         ExecutionResultRepository executionResultRepository)
     {
-        _dockerService = dockerService;
+        _dockerClient = dockerClient;
         _s3Service = s3Service;
         _executionResultRepository = executionResultRepository;
     }
@@ -67,10 +67,10 @@ public class ExecutionService : IExecutionService
             await using var errorFileStream = new StreamWriter(errorFilePath);
 
             containerId =
-                await _dockerService.ExecuteScriptWithFilesAsync(tempDirectory, script.EntryFilePath!,
+                await _dockerClient.ExecuteScriptWithFilesAsync(tempDirectory, script.EntryFilePath!,
                     cancellationToken);
 
-            using var logStream = await _dockerService.GetContainerLogsAsync(containerId, cancellationToken);
+            using var logStream = await _dockerClient.GetContainerLogsAsync(containerId, cancellationToken);
             using var memoryStream = new MemoryStream();
             await logStream.CopyFromAsync(memoryStream, cancellationToken);
             memoryStream.Position = 0;
@@ -118,7 +118,7 @@ public class ExecutionService : IExecutionService
 
             // Cleanup Docker container
             if (!string.IsNullOrEmpty(containerId))
-                await _dockerService.StopContainerAsync(containerId, cancellationToken);
+                await _dockerClient.StopContainerAsync(containerId, cancellationToken);
         }
 
         // Save execution result to the database

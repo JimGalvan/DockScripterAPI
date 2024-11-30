@@ -31,9 +31,9 @@ namespace DockScripter.Tests
             return $"A script for testing {Random.Next(1000, 9999)}";
         }
 
-        public static string GenerateEnvironmentName()
+        public static string GenerateDockerContainerName()
         {
-            return $"Python Environment {Random.Next(1000, 9999)}";
+            return $"Python Docker Container {Random.Next(1000, 9999)}";
         }
     }
 }

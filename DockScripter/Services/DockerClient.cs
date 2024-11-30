@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 
 namespace DockScripter.Services;
 
-public class DockerService
+public class DockerClient
 {
-    private readonly DockerClient _client;
+    private readonly Docker.DotNet.DockerClient _client;
     private readonly IS3Service _s3Service;
 
-    public DockerService(IS3Service s3Service)
+    public DockerClient(IS3Service s3Service)
     {
         _s3Service = s3Service;
         _client = new DockerClientConfiguration().CreateClient();
