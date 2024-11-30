@@ -115,7 +115,7 @@ public class ApiIntegrationTests
     private async Task UploadScriptFileAsync(string authToken, Guid scriptId, string fileName, string fileContent)
     {
         using var fileContentStream = new ByteArrayContent(Encoding.UTF8.GetBytes(fileContent));
-        fileContentStream.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("text/plain");
+        fileContentStream.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
 
         var form = new MultipartFormDataContent
         {

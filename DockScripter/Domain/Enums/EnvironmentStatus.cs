@@ -2,6 +2,8 @@
 
 public enum EnvironmentStatus
 {
+    NotInitialized,
+    Created,
     Initializing,
     Ready,
     Running,
