@@ -19,11 +19,6 @@ builder.Services.AddSwaggerGen();
 
 // Global exception filter
 builder.Services.AddControllers(options => { options.Filters.Add<GlobalExceptionFilter>(); });
-// builder.Services.AddControllers().AddJsonOptions(options =>
-// {
-//     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
-//     options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
-// });
 
 // logger
 builder.Services.AddLogging();
@@ -64,7 +59,7 @@ builder.Services.AddCors(options =>
         policyBuilder =>
         {
             policyBuilder // or the actual URL of your React app
-                .WithOrigins("http://localhost:8081") // Specify your allowed domain here
+                .WithOrigins("http://localhost:3000") // Specify your allowed domain here
                 .AllowAnyMethod()
                 .AllowAnyHeader();
         });

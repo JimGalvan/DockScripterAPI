@@ -9,6 +9,8 @@ public interface IScriptService
         HttpContext httpContext,
         CancellationToken cancellationToken);
 
+    Task<IEnumerable<ScriptEntity>> GetAllScriptsAsync(Guid userId, CancellationToken cancellationToken);
+
     Task<ScriptEntity?> GetScriptByIdAsync(Guid scriptId, CancellationToken cancellationToken);
 
     Task<ScriptEntity?> UpdateScriptAsync(Guid scriptId, ScriptRequestDto scriptDto,

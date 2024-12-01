@@ -5,9 +5,9 @@ namespace DockScripter.Domain.Entities;
 
 public class UserEntity : BaseEntity
 {
-    [Required] [MaxLength(50)] public string? FirstName { get; init; }
+    [MaxLength(50)] public string? FirstName { get; init; }
 
-    [Required] [MaxLength(50)] public string? LastName { get; init; }
+    [MaxLength(50)] public string? LastName { get; init; }
 
     public byte[]? PasswordHash { get; init; }
     public byte[]? PasswordSalt { get; init; }
@@ -18,6 +18,6 @@ public class UserEntity : BaseEntity
     public string? Email { get; init; }
 
     // Relationships
-    public ICollection<ScriptEntity> Scripts { get; init; } = new List<ScriptEntity>();
-    public ICollection<DockerContainerEntity> DockerContainers { get; init; } = new List<DockerContainerEntity>();
+    public ICollection<ScriptEntity>? Scripts { get; init; } = new List<ScriptEntity>();
+    public ICollection<DockerContainerEntity>? DockerContainers { get; init; } = new List<DockerContainerEntity>();
 }

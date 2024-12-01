@@ -129,6 +129,11 @@ public class ScriptService : IScriptService
         return script;
     }
 
+    public async Task<IEnumerable<ScriptEntity>> GetAllScriptsAsync(Guid userId, CancellationToken cancellationToken)
+    {
+        return await _scriptRepository.GetScriptsByUserId(userId, cancellationToken);
+    }
+
     public async Task<ScriptEntity?> UpdateScriptAsync(Guid scriptId, ScriptRequestDto scriptDto,
         CancellationToken cancellationToken)
     {

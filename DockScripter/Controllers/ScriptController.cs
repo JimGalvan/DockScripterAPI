@@ -88,6 +88,26 @@ public class ScriptController : ControllerBase
         return CreatedAtAction(nameof(CreateScript), new { id = createdScript.Id }, responseDto);
     }
 
+    [HttpGet("all")]
+    public async Task<ActionResult<IEnumerable<ScriptResponseDto>>> GetAllScripts(CancellationToken cancellationToken)
+    {
+        var userId = ControllerUtils.GetUserIdFromToken(this);
+        var scripts = await _scriptService.GetAllScriptsAsync(userId, cancellationToken);
+        var response = scripts.Select(script => new ScriptResponseDto
+        {
+            Id = script.Id,
+            Name = script.Name,
+            Description = script.Description,
+            Language = script.Language.ToString(),
+            Status = script.Status.ToString(),
+            CreationDateTimeUtc = script.CreationDateTimeUtc,
+            LastExecutedAt = script.LastExecutedAt,
+            Files = script.Files
+        });
+
+        return Ok(response);
+    }
+
     [HttpGet("{id}")]
     public async Task<ActionResult<ScriptResponseDto>> GetScript(Guid id, CancellationToken cancellationToken)
     {
@@ -95,7 +115,7 @@ public class ScriptController : ControllerBase
         if (script == null)
             return NotFound();
 
-        return new ScriptResponseDto
+        var response = new ScriptResponseDto
         {
             Id = script.Id,
             Name = script.Name,
@@ -106,6 +126,7 @@ public class ScriptController : ControllerBase
             LastExecutedAt = script.LastExecutedAt,
             Files = script.Files
         };
+        return Ok(response);
     }
 
     [HttpPut("{id}")]

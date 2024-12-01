@@ -9,15 +9,9 @@ namespace DockScripter.Domain.Dtos.Requests
 {
     public class RegisterUserRequestDto
     {
-        [DefaultValue("John")]
-        [Required(ErrorMessage = "First name is required")]
         public string? FirstName { get; set; }
-
-        [DefaultValue("Doe")]
-        [Required(ErrorMessage = "Last name is required")]
         public string? LastName { get; set; }
 
-        [DefaultValue("user@example.com")]
         [Required(ErrorMessage = "Email is required")]
         [EmailAddress(ErrorMessage = "Invalid email address")]
         public string? Email { get; set; }
