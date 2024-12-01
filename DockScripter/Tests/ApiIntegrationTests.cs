@@ -21,6 +21,13 @@ public class ApiIntegrationTests
     }
 
     [Fact]
+    public async Task TestUserCanCreateScriptWithoutFiles()
+    {
+        var authToken = await RegisterAndAuthenticateUserAsync();
+        var scriptId = await CreateScriptWithoutFilesAsync(authToken);
+    }
+
+    [Fact]
     public async Task TestUserCanExecuteScript()
     {
         // 1. Register and Authenticate
@@ -62,6 +69,29 @@ public class ApiIntegrationTests
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
         var getResponse = await _client.SendAsync(request);
         Assert.Equal(System.Net.HttpStatusCode.NotFound, getResponse.StatusCode);
+    }
+
+    private async Task<Guid> CreateScriptWithoutFilesAsync(string token)
+    {
+        var scriptPayload = new
+        {
+            Name = TestDataGenerator.GenerateScriptName(),
+            Description = TestDataGenerator.GenerateScriptDescription(),
+            EntryFilePath = "test_script.py",
+            Language = "Python"
+        };
+
+        var request = new HttpRequestMessage(HttpMethod.Post, "script")
+        {
+            Content = new StringContent(JsonSerializer.Serialize(scriptPayload), Encoding.UTF8, "application/json")
+        };
+
+        var response = await _client.SendAsync(request);
+        response.EnsureSuccessStatusCode();
+
+        var content = await response.Content.ReadAsStringAsync();
+        var scriptData = JsonSerializer.Deserialize<ScriptResponseDto>(content, _jsonOptions);
+        return scriptData.Id;
     }
 
     private async Task<string> RegisterAndAuthenticateUserAsync()

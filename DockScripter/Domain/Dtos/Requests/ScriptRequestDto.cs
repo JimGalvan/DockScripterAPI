@@ -6,9 +6,9 @@ namespace DockScripter.Domain.Dtos.Requests;
 public class ScriptRequestDto
 {
     [Required] public string? Name { get; set; }
-    [Required] public string? Description { get; set; }
     [Required] public string? EntryFilePath { get; set; }
-    [Required] public string? Language { get; set; }
     [Required] public string? DockerImage { get; set; }
-    public List<IFormFile>? Files { get; set; }
+    [Required] public List<IFormFile>? Files { get; set; }
+    [Required] public string? Language { get; set; }
+    public string? Description { get; set; }
 }

@@ -68,6 +68,12 @@ public class ScriptService : IScriptService
         var userId = Guid.Parse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ??
                                 throw new UnauthorizedAccessException("User not authenticated"));
 
+        var filesAmount = scriptDto.Files?.Count ?? 0;
+        if (filesAmount == 0)
+        {
+            throw new ArgumentException("No files provided.");
+        }
+
         if (!Enum.TryParse(scriptDto.Language, out ScriptLanguage language))
         {
             throw new ArgumentException("Invalid language specified.");
@@ -78,7 +84,6 @@ public class ScriptService : IScriptService
             Name = scriptDto.Name,
             Description = scriptDto.Description,
             EntryFilePath = scriptDto.EntryFilePath,
-            Language = language,
             UserId = userId,
             DockerContainer = dockerContainer,
         };
