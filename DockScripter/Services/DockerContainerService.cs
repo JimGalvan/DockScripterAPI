@@ -23,24 +23,22 @@ public class DockerContainerService : IDockerContainerService
         DockerContainerRequestDto dockerContainerDto,
         HttpContext httpContext, CancellationToken cancellationToken)
     {
-        if (string.IsNullOrWhiteSpace(dockerContainerDto.DockerContainerName))
-            throw new ArgumentException("Docker container name cannot be empty");
-
         if (string.IsNullOrWhiteSpace(dockerContainerDto.DockerImage))
             throw new ArgumentException("Docker image cannot be empty");
 
         var userId = Guid.Parse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ??
                                 throw new UnauthorizedAccessException("User not authenticated"));
 
+
+        var dockerContainerName = dockerContainerDto.DockerContainerName ?? string.Empty;
         var dockerContainerId = await _dockerClient.CreateContainerAsync(dockerContainerDto.DockerImage,
-            dockerContainerDto.DockerContainerName, cancellationToken);
+            dockerContainerName, cancellationToken);
 
         if (dockerContainerId == null)
             throw new Exception("Failed to create Docker container, Docker container ID is null");
 
         var dockerContainer = new DockerContainerEntity
         {
-            DockerContainerName = dockerContainerDto.DockerContainerName,
             DockerImage = dockerContainerDto.DockerImage,
             Status = DockerContainerStatus.Created,
             ContainerId = dockerContainerId,

@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using DockScripter.Domain.Entities;
 using DockScripter.Tests;
 using Xunit;
 
@@ -21,28 +22,62 @@ public class ApiIntegrationTests
     }
 
     [Fact]
-    public async Task TestUserCanCreateScriptWithoutFiles()
+    public async Task TestCreateScript()
     {
+        // 1. Register and Authenticate
         var authToken = await RegisterAndAuthenticateUserAsync();
-        var scriptId = await CreateScriptWithoutFilesAsync(authToken);
+        var scriptPayload = new ScriptPayload
+        {
+            Name = TestDataGenerator.GenerateScriptName(),
+            Description = TestDataGenerator.GenerateScriptDescription(),
+            EntryFilePath = "test_script.py",
+            Language = "Python",
+            DockerImage = "python:3.8",
+            Files = new[]
+            {
+                new ScriptFile { Name = "test_script.py", Content = "print('Hello from script')" }
+            }
+        };
+
+        // 2. Create a Script
+        var scriptData = await CreateScriptAsync(authToken, scriptPayload);
+
+        // 3. Assert the response
+        Assert.NotNull(scriptData);
+        Assert.Equal(scriptPayload.Name, scriptData.Name);
+        Assert.Equal(scriptPayload.EntryFilePath, scriptData.EntryFilePath);
+        Assert.Equal(scriptPayload.Description, scriptData.Description);
+        Assert.Equal(scriptPayload.Language, scriptData.Language);
+        Assert.NotEqual(Guid.Empty, scriptData.Id);
     }
 
     [Fact]
     public async Task TestUserCanExecuteScript()
     {
+        var scriptPayload = new ScriptPayload
+        {
+            Name = TestDataGenerator.GenerateScriptName(),
+            Description = TestDataGenerator.GenerateScriptDescription(),
+            EntryFilePath = "test_script.py",
+            Language = "Python",
+            DockerImage = "python:3.8",
+            Files = new[]
+            {
+                new ScriptFile { Name = "test_script.py", Content = "print('Hello from script')" }
+            }
+        };
+
         // 1. Register and Authenticate
         var authToken = await RegisterAndAuthenticateUserAsync();
 
         // 2. Create a Script
-        var scriptId = await CreateScriptAsync(authToken);
+        var scrip = await CreateScriptAsync(authToken, scriptPayload);
+        var scriptId = scrip.Id;
 
-        // 3. Upload Script Files
-        await UploadScriptFileAsync(authToken, scriptId, "test_script.py", "print('Hello from script')");
-
-        // 4. Execute the Script
+        // 3. Execute the Script
         var executionResult = await ExecuteScriptAsync(authToken, scriptId);
 
-        // 5. Retrieve and Assert Execution Results
+        // 4. Retrieve and Assert Execution Results
         Assert.NotNull(executionResult);
         Assert.Equal("Success", executionResult.Status);
         Assert.NotNull(executionResult.ErrorOutputFilePath);
@@ -51,11 +86,25 @@ public class ApiIntegrationTests
     [Fact]
     public async Task TestUserCanDeleteScript()
     {
+        var scriptPayload = new ScriptPayload
+        {
+            Name = TestDataGenerator.GenerateScriptName(),
+            Description = TestDataGenerator.GenerateScriptDescription(),
+            EntryFilePath = "test_script.py",
+            Language = "Python",
+            DockerImage = "python:3.8",
+            Files = new[]
+            {
+                new ScriptFile { Name = "test_script.py", Content = "print('Hello from script')" }
+            }
+        };
+
         // 1. Register and Authenticate
         var authToken = await RegisterAndAuthenticateUserAsync();
 
         // 2. Create a Script
-        var scriptId = await CreateScriptAsync(authToken);
+        var script = await CreateScriptAsync(authToken, scriptPayload);
+        var scriptId = script.Id;
 
         // 3. Delete the Script
         var request = new HttpRequestMessage(HttpMethod.Delete, $"script/{scriptId}");
@@ -69,29 +118,6 @@ public class ApiIntegrationTests
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
         var getResponse = await _client.SendAsync(request);
         Assert.Equal(System.Net.HttpStatusCode.NotFound, getResponse.StatusCode);
-    }
-
-    private async Task<Guid> CreateScriptWithoutFilesAsync(string token)
-    {
-        var scriptPayload = new
-        {
-            Name = TestDataGenerator.GenerateScriptName(),
-            Description = TestDataGenerator.GenerateScriptDescription(),
-            EntryFilePath = "test_script.py",
-            Language = "Python"
-        };
-
-        var request = new HttpRequestMessage(HttpMethod.Post, "script")
-        {
-            Content = new StringContent(JsonSerializer.Serialize(scriptPayload), Encoding.UTF8, "application/json")
-        };
-
-        var response = await _client.SendAsync(request);
-        response.EnsureSuccessStatusCode();
-
-        var content = await response.Content.ReadAsStringAsync();
-        var scriptData = JsonSerializer.Deserialize<ScriptResponseDto>(content, _jsonOptions);
-        return scriptData.Id;
     }
 
     private async Task<string> RegisterAndAuthenticateUserAsync()
@@ -118,19 +144,27 @@ public class ApiIntegrationTests
         return loginData.Token;
     }
 
-    private async Task<Guid> CreateScriptAsync(string authToken)
+    private async Task<ScriptResponseDto> CreateScriptAsync(string authToken, ScriptPayload scriptPayload)
     {
-        var scriptPayload = new
+        var formData = new MultipartFormDataContent
         {
-            Name = TestDataGenerator.GenerateScriptName(),
-            Description = TestDataGenerator.GenerateScriptDescription(),
-            EntryFilePath = "test_script.py",
-            language = "Python"
+            { new StringContent(scriptPayload.Name), "Name" },
+            { new StringContent(scriptPayload.Description), "Description" },
+            { new StringContent(scriptPayload.EntryFilePath), "EntryFilePath" },
+            { new StringContent(scriptPayload.Language), "Language" },
+            { new StringContent(scriptPayload.DockerImage), "DockerImage" }
         };
+
+        foreach (var file in scriptPayload.Files)
+        {
+            var fileContent = new ByteArrayContent(Encoding.UTF8.GetBytes(file.Content));
+            fileContent.Headers.ContentType = new MediaTypeHeaderValue("text/plain");
+            formData.Add(fileContent, "Files", file.Name);
+        }
 
         var request = new HttpRequestMessage(HttpMethod.Post, "script")
         {
-            Content = new StringContent(JsonSerializer.Serialize(scriptPayload), Encoding.UTF8, "application/json")
+            Content = formData
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
 
@@ -139,7 +173,7 @@ public class ApiIntegrationTests
 
         var content = await response.Content.ReadAsStringAsync();
         var scriptData = JsonSerializer.Deserialize<ScriptResponseDto>(content, _jsonOptions);
-        return scriptData.Id;
+        return scriptData;
     }
 
     private async Task UploadScriptFileAsync(string authToken, Guid scriptId, string fileName, string fileContent)
@@ -182,6 +216,10 @@ public class ApiIntegrationTests
     private class ScriptResponseDto
     {
         public Guid Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string EntryFilePath { get; set; }
+        public string Language { get; set; }
     }
 
     private class ExecutionResultResponseDto
@@ -193,5 +231,21 @@ public class ApiIntegrationTests
         public string? ErrorOutputFilePath { get; set; }
         public DateTime ExecutedAt { get; set; }
         public string? Status { get; set; }
+    }
+
+    public class ScriptPayload
+    {
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public string EntryFilePath { get; set; }
+        public string Language { get; set; }
+        public string DockerImage { get; set; }
+        public ScriptFile[] Files { get; set; }
+    }
+
+    public class ScriptFile
+    {
+        public string Name { get; set; }
+        public string Content { get; set; }
     }
 }

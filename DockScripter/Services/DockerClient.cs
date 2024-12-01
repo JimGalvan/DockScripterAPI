@@ -12,25 +12,50 @@ public class DockerClient : Interfaces.IDockerClient
     public DockerClient(IS3Service s3Service)
     {
         _s3Service = s3Service;
-        _client = new DockerClientConfiguration().CreateClient();
+        try
+        {
+            _client = new DockerClientConfiguration().CreateClient();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("Failed to create Docker client. Please check if the Docker Daemon is running.", ex);
+        }
     }
 
     public async Task<string> CreateContainerAsync(string dockerImage, string dockerContainerName,
         CancellationToken cancellationToken)
     {
-        var response = await _client.Containers.CreateContainerAsync(new CreateContainerParameters
+        try
         {
-            Image = dockerImage,
-            Name = dockerContainerName,
-            HostConfig = new HostConfig
+            var response = await _client.Containers.CreateContainerAsync(new CreateContainerParameters
             {
-                AutoRemove = true,
-                Memory = 256 * 1024 * 1024,
-                NanoCPUs = 500000000
-            }
-        }, cancellationToken);
+                Image = dockerImage,
+                Name = dockerContainerName ?? string.Empty,
+                HostConfig = new HostConfig
+                {
+                    AutoRemove = true,
+                    Memory = 256 * 1024 * 1024,
+                    NanoCPUs = 500000000
+                }
+            }, cancellationToken);
 
-        return response.ID;
+            return response.ID;
+        }
+        catch (DockerApiException ex)
+        {
+            throw new Exception(
+                "Docker API error occurred while creating the container. Please check the Docker Daemon and the provided parameters.",
+                ex);
+        }
+        catch (HttpRequestException ex)
+        {
+            throw new Exception("Failed to connect to the Docker Daemon. Please ensure it is running and accessible.",
+                ex);
+        }
+        catch (Exception ex)
+        {
+            throw new Exception("An unexpected error occurred while creating the Docker container.", ex);
+        }
     }
 
     public async Task<string> ExecuteScriptWithFilesAsync(string localDirectory, string entryFilePath,

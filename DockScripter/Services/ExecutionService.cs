@@ -6,11 +6,11 @@ using DockScripter.Services.Interfaces;
 
 public class ExecutionService : IExecutionService
 {
-    private readonly DockerClient _dockerClient;
+    private readonly IDockerClient _dockerClient;
     private readonly IS3Service _s3Service;
     private readonly ExecutionResultRepository _executionResultRepository;
 
-    public ExecutionService(DockerClient dockerClient, IS3Service s3Service,
+    public ExecutionService(IDockerClient dockerClient, IS3Service s3Service,
         ExecutionResultRepository executionResultRepository)
     {
         _dockerClient = dockerClient;

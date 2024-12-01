@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace DockScripter.Domain.Entities;
 
@@ -8,5 +9,5 @@ public class ScriptFile : BaseEntity
     [Required] public Guid ScriptId { get; set; }
 
     // Relationships
-    public ScriptEntity Script { get; set; }
+    [JsonIgnore] public ScriptEntity? Script { get; set; }
 }

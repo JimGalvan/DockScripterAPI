@@ -85,7 +85,6 @@ public class ScriptController : ControllerBase
             CreationDateTimeUtc = createdScript.CreationDateTimeUtc,
             Files = createdScript.Files
         };
-
         return CreatedAtAction(nameof(CreateScript), new { id = createdScript.Id }, responseDto);
     }
 

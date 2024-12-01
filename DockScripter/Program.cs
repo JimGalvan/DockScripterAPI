@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using Amazon.S3;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +19,11 @@ builder.Services.AddSwaggerGen();
 
 // Global exception filter
 builder.Services.AddControllers(options => { options.Filters.Add<GlobalExceptionFilter>(); });
+// builder.Services.AddControllers().AddJsonOptions(options =>
+// {
+//     options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.Preserve;
+//     options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+// });
 
 // logger
 builder.Services.AddLogging();
@@ -25,6 +31,7 @@ builder.Services.AddLogging();
 // Add controllers
 builder.Services.AddAWSService<IAmazonS3>();
 builder.Services.AddSingleton<IS3Service, S3Service>();
+builder.Services.AddScoped<IDockerClient, DockerClient>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITokenBlacklistService, TokenBlacklistService>();
@@ -34,7 +41,6 @@ builder.Services.AddScoped<IScriptService, ScriptService>();
 builder.Services.AddScoped<ScriptRepository>();
 builder.Services.AddScoped<IExecutionService, ExecutionService>();
 builder.Services.AddScoped<ExecutionResultRepository>();
-builder.Services.AddScoped<DockerClient>();
 builder.Services.AddScoped<GlobalExceptionFilter>();
 builder.Services.AddScoped<ScriptFileRepository>();
 
