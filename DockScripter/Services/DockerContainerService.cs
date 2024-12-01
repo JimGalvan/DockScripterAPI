@@ -19,7 +19,7 @@ public class DockerContainerService : IDockerContainerService
         _dockerClient = dockerClient;
     }
 
-    public async Task<DockerContainerEntity> CreateDockerContainerAsync(
+    public async Task<DockerContainerEntity> StoreDockerContainerDataAsync(
         DockerContainerRequestDto dockerContainerDto,
         HttpContext httpContext, CancellationToken cancellationToken)
     {
@@ -29,19 +29,10 @@ public class DockerContainerService : IDockerContainerService
         var userId = Guid.Parse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ??
                                 throw new UnauthorizedAccessException("User not authenticated"));
 
-
-        var dockerContainerName = dockerContainerDto.DockerContainerName ?? string.Empty;
-        var dockerContainerId = await _dockerClient.CreateContainerAsync(dockerContainerDto.DockerImage,
-            dockerContainerName, cancellationToken);
-
-        if (dockerContainerId == null)
-            throw new Exception("Failed to create Docker container, Docker container ID is null");
-
         var dockerContainer = new DockerContainerEntity
         {
             DockerImage = dockerContainerDto.DockerImage,
-            Status = DockerContainerStatus.Created,
-            ContainerId = dockerContainerId,
+            Status = DockerContainerStatus.NonCreated,
             UserId = userId
         };
 

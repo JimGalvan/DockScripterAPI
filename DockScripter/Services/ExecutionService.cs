@@ -52,7 +52,7 @@ public class ExecutionService : IExecutionService
                 await using (var downloadStream = await _s3Service.DownloadFileAsync(scriptFile.S3Key))
                 await using (var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
                 {
-                    await downloadStream.CopyToAsync(fileStream);
+                    await downloadStream.CopyToAsync(fileStream, cancellationToken);
                 }
             }
 
@@ -67,7 +67,7 @@ public class ExecutionService : IExecutionService
             await using var errorFileStream = new StreamWriter(errorFilePath);
 
             containerId =
-                await _dockerClient.ExecuteScriptWithFilesAsync(tempDirectory, script.EntryFilePath!,
+                await _dockerClient.ExecuteScriptWithFilesAsync(tempDirectory, script,
                     cancellationToken);
 
             using var logStream = await _dockerClient.GetContainerLogsAsync(containerId, cancellationToken);

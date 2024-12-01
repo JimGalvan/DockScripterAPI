@@ -1,5 +1,6 @@
 ﻿using Docker.DotNet;
 using Docker.DotNet.Models;
+using DockScripter.Domain.Entities;
 using DockScripter.Services.Interfaces;
 
 namespace DockScripter.Services;
@@ -58,17 +59,27 @@ public class DockerClient : Interfaces.IDockerClient
         }
     }
 
-    public async Task<string> ExecuteScriptWithFilesAsync(string localDirectory, string entryFilePath,
+    public async Task<string> ExecuteScriptWithFilesAsync(string localDirectory, ScriptEntity script,
         CancellationToken cancellationToken)
     {
-        // Pull the Python image if necessary
-        await PullPythonImageAsync("python", "3.8-slim", cancellationToken);
+        var entryFilePath = script.EntryFilePath;
+        var dockerContainer = script.DockerContainer;
+        var dockerImage = dockerContainer!.DockerImage;
+        var scriptLanguage = script.Language.ToString();
+
+        if (dockerContainer == null)
+            throw new Exception("Docker container is not found in ScriptEntity object.");
+
+        if (string.IsNullOrEmpty(dockerImage))
+            throw new Exception("Docker image is not found in DockerContainerEntity object.");
+
+        await PullPythonImageAsync(scriptLanguage, dockerImage, cancellationToken);
 
         // Create and start a container, mounting the local directory with downloaded files
         var response = await _client.Containers.CreateContainerAsync(new CreateContainerParameters
         {
-            Image = "python:3.8-slim",
-            Cmd = new[] { "python", $"/app/{entryFilePath}" }, // Run the entry script file
+            Image = dockerImage,
+            Cmd = { "python", $"/app/{entryFilePath}" },
             HostConfig = new HostConfig
             {
                 Mounts = new List<Mount>

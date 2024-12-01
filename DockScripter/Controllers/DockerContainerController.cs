@@ -42,7 +42,7 @@ public class DockerContainerController : ControllerBase
         CancellationToken cancellationToken)
     {
         var createdDockerContainer =
-            await _dockerContainerService.CreateDockerContainerAsync(dockerContainerDto, HttpContext,
+            await _dockerContainerService.StoreDockerContainerDataAsync(dockerContainerDto, HttpContext,
                 cancellationToken);
 
         return CreatedAtAction(nameof(GetDockerContainer), new { id = createdDockerContainer.Id },

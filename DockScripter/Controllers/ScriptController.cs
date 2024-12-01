@@ -67,7 +67,7 @@ public class ScriptController : ControllerBase
         };
 
         var dockerContainer =
-            await _dockerContainerService.CreateDockerContainerAsync(createDockerContainerDto, HttpContext,
+            await _dockerContainerService.StoreDockerContainerDataAsync(createDockerContainerDto, HttpContext,
                 cancellationToken);
 
         var createdScript =

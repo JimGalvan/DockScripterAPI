@@ -2,6 +2,7 @@
 
 public enum DockerContainerStatus
 {
+    NonCreated,
     Created,
     Running,
     Paused,
