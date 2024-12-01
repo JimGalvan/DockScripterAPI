@@ -71,8 +71,8 @@ public class ApiIntegrationTests
         var authToken = await RegisterAndAuthenticateUserAsync();
 
         // 2. Create a Script
-        var scrip = await CreateScriptAsync(authToken, scriptPayload);
-        var scriptId = scrip.Id;
+        var script = await CreateScriptAsync(authToken, scriptPayload);
+        var scriptId = script.Id;
 
         // 3. Execute the Script
         var executionResult = await ExecuteScriptAsync(authToken, scriptId);

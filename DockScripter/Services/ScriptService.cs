@@ -124,7 +124,9 @@ public class ScriptService : IScriptService
 
     public async Task<ScriptEntity?> GetScriptByIdAsync(Guid scriptId, CancellationToken cancellationToken)
     {
-        return await _scriptRepository.SelectById(scriptId, cancellationToken, s => s.Files);
+        var script =
+            await _scriptRepository.SelectById(scriptId, cancellationToken, s => s.Files, s => s.DockerContainer!);
+        return script;
     }
 
     public async Task<ScriptEntity?> UpdateScriptAsync(Guid scriptId, ScriptRequestDto scriptDto,

@@ -1,5 +1,6 @@
 ﻿using Docker.DotNet;
 using Docker.DotNet.Models;
+using DockScripter.Core;
 using DockScripter.Domain.Entities;
 using DockScripter.Services.Interfaces;
 
@@ -62,24 +63,31 @@ public class DockerClient : Interfaces.IDockerClient
     public async Task<string> ExecuteScriptWithFilesAsync(string localDirectory, ScriptEntity script,
         CancellationToken cancellationToken)
     {
+        if (script == null)
+            throw new ArgumentNullException(nameof(script), "ScriptEntity object cannot be null.");
+
         var entryFilePath = script.EntryFilePath;
         var dockerContainer = script.DockerContainer;
-        var dockerImage = dockerContainer!.DockerImage;
-        var scriptLanguage = script.Language.ToString();
+
+        if (string.IsNullOrEmpty(entryFilePath))
+            throw new ArgumentException("Entry file path is not found in ScriptEntity object.");
 
         if (dockerContainer == null)
-            throw new Exception("Docker container is not found in ScriptEntity object.");
+            throw new ArgumentException("Docker container is not found in ScriptEntity object.");
+
+        var dockerImage = dockerContainer.DockerImage;
 
         if (string.IsNullOrEmpty(dockerImage))
-            throw new Exception("Docker image is not found in DockerContainerEntity object.");
+            throw new ArgumentException("Docker image is not found in DockerContainerEntity object.");
 
-        await PullPythonImageAsync(scriptLanguage, dockerImage, cancellationToken);
+        var (image, tag) = StringUtils.ParseDockerImage(dockerImage);
+        await PullPythonImageAsync(image, tag, cancellationToken);
 
-        // Create and start a container, mounting the local directory with downloaded files
         var response = await _client.Containers.CreateContainerAsync(new CreateContainerParameters
         {
             Image = dockerImage,
-            Cmd = { "python", $"/app/{entryFilePath}" },
+            // Cmd = new[] { "sh", "-c", "tail -f /dev/null" }, // Keeps the container 
+            Cmd = new[] { "python", $"/app/{entryFilePath}" },
             HostConfig = new HostConfig
             {
                 Mounts = new List<Mount>
@@ -88,7 +96,7 @@ public class DockerClient : Interfaces.IDockerClient
                     {
                         Type = "bind",
                         Source = localDirectory,
-                        Target = "/app" // Mounting the directory to /app in the container
+                        Target = "/app"
                     }
                 },
                 AutoRemove = false,

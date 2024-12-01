@@ -31,7 +31,7 @@ public class DockerContainerService : IDockerContainerService
 
         var dockerContainer = new DockerContainerEntity
         {
-            DockerImage = dockerContainerDto.DockerImage,
+            DockerImage = dockerContainerDto.DockerImage.ToLower(),
             Status = DockerContainerStatus.NonCreated,
             UserId = userId
         };
