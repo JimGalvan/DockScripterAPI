@@ -9,7 +9,7 @@ namespace DockScripter.Domain.Entities;
 public class DockerContainerEntity : BaseEntity
 {
     [MaxLength(255)] public string? DockerContainerName { get; set; }
-    [Required] public DockerContainerStatus Status { get; set; } = DockerContainerStatus.NotInitialized;
+    [Required] public DockerContainerStatus Status { get; set; }
     [Required] [MaxLength(255)] public string? DockerImage { get; set; }
     [MaxLength(64)] public string? ContainerId { get; set; }
 

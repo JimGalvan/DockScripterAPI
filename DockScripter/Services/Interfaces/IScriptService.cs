@@ -5,7 +5,8 @@ namespace DockScripter.Services.Interfaces;
 
 public interface IScriptService
 {
-    Task<ScriptEntity> CreateScriptAsync(ScriptRequestDto scriptDto, HttpContext httpContext,
+    Task<ScriptEntity> CreateScriptAsync(ScriptRequestDto scriptDto, DockerContainerEntity dockerContainer,
+        HttpContext httpContext,
         CancellationToken cancellationToken);
 
     Task<ScriptEntity?> GetScriptByIdAsync(Guid scriptId, CancellationToken cancellationToken);
@@ -15,5 +16,5 @@ public interface IScriptService
 
     Task DeleteScriptAsync(Guid scriptId, CancellationToken cancellationToken);
 
-    Task AddScriptFileAsync(Guid scriptId, string s3Key, CancellationToken cancellationToken);
+    Task<string> AddScriptFileAsync(Guid scriptId, IFormFile file, CancellationToken cancellationToken);
 }

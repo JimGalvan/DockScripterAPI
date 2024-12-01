@@ -30,18 +30,7 @@ public class ScriptController : ControllerBase
     [HttpPost("{scriptId}/upload")]
     public async Task<IActionResult> UploadFile(Guid scriptId, IFormFile file, CancellationToken cancellationToken)
     {
-        if (file.Length == 0)
-            return BadRequest($"Invalid File. File length is {file.Length}.");
-
-        var s3Key = $"{scriptId}/{file.FileName}";
-
-        await using (var stream = file.OpenReadStream())
-        {
-            await _s3Service.UploadFileAsync(stream, s3Key);
-        }
-
-        await _scriptService.AddScriptFileAsync(scriptId, s3Key, cancellationToken);
-
+        var s3Key = await _scriptService.AddScriptFileAsync(scriptId, file, cancellationToken);
         return Ok(new { Message = "File uploaded successfully.", FileKey = s3Key });
     }
 
@@ -78,12 +67,14 @@ public class ScriptController : ControllerBase
         };
 
         var dockerContainer =
-            await _dockerContainerService.InitializeDockerContainerAsync(createDockerContainerDto, HttpContext,
+            await _dockerContainerService.CreateDockerContainerAsync(createDockerContainerDto, HttpContext,
                 cancellationToken);
 
-        var createdScript = await _scriptService.CreateScriptAsync(scriptDto, HttpContext, cancellationToken);
+        var createdScript =
+            await _scriptService.CreateScriptAsync(scriptDto, dockerContainer, HttpContext,
+                cancellationToken);
 
-        return CreatedAtAction(nameof(GetScript), new { id = createdScript.Id }, new ScriptResponseDto
+        var responseDto = new ScriptResponseDto
         {
             Id = createdScript.Id,
             Name = createdScript.Name!,
@@ -91,8 +82,11 @@ public class ScriptController : ControllerBase
             Description = createdScript.Description!,
             Language = createdScript.Language.ToString(),
             Status = createdScript.Status.ToString(),
-            CreationDateTimeUtc = createdScript.CreationDateTimeUtc
-        });
+            CreationDateTimeUtc = createdScript.CreationDateTimeUtc,
+            Files = createdScript.Files
+        };
+
+        return CreatedAtAction(nameof(CreateScript), new { id = createdScript.Id }, responseDto);
     }
 
     [HttpGet("{id}")]

@@ -25,7 +25,7 @@ public class S3Service : IS3Service
         _bucketName = configuration["S3BucketName"] ?? throw new Exception("S3 bucket name is not configured.");
     }
 
-    public async Task<string> UploadFileAsync(Stream fileStream, string fileName)
+    public async Task<PutObjectResponse> UploadFileAsync(Stream fileStream, string fileName)
     {
         var request = new PutObjectRequest
         {
@@ -42,10 +42,10 @@ public class S3Service : IS3Service
             throw new Exception("Failed to upload file to S3");
         }
 
-        return fileName;
+        return response;
     }
 
-    public async Task<string> UploadLogFileAsync(string logContent, string fileName)
+    public async Task<PutObjectResponse> UploadLogFileAsync(string logContent, string fileName)
     {
         var logStream = new MemoryStream(Encoding.UTF8.GetBytes(logContent));
         return await UploadFileAsync(logStream, fileName);

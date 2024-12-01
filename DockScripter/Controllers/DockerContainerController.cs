@@ -19,24 +19,45 @@ public class DockerContainerController : ControllerBase
         _dockerContainerService = dockerContainerService;
     }
 
+    // [HttpPost]
+    // public async Task<IActionResult> CreateDockerContainer(DockerContainerRequestDto dockerContainerDto,
+    //     CancellationToken cancellationToken)
+    // {
+    //     var createdDockerContainer =
+    //         await _dockerContainerService.CreateDockerContainerMetaDataAsync(dockerContainerDto, HttpContext,
+    //             cancellationToken);
+    //
+    //     return CreatedAtAction(nameof(GetDockerContainer), new { id = createdDockerContainer.Id },
+    //         new DockerContainerResponseDto
+    //         {
+    //             Id = createdDockerContainer.Id,
+    //             DockerContainer = createdDockerContainer.DockerContainerName,
+    //             Status = createdDockerContainer.Status.ToString(),
+    //             CreatedAt = createdDockerContainer.CreationDateTimeUtc
+    //         });
+    // }
+
     [HttpPost]
-    public async Task<IActionResult> CreateDockerContainer(DockerContainerRequestDto dockerContainerDto,
+    public async Task<IActionResult>? CreateDockerContainer(DockerContainerRequestDto dockerContainerDto,
         CancellationToken cancellationToken)
     {
         var createdDockerContainer =
-            await _dockerContainerService.InitializeDockerContainerAsync(dockerContainerDto, HttpContext, cancellationToken);
+            await _dockerContainerService.CreateDockerContainerAsync(dockerContainerDto, HttpContext,
+                cancellationToken);
 
-        return CreatedAtAction(nameof(GetDockerContainer), new { id = createdDockerContainer.Id }, new DockerContainerResponseDto
-        {
-            Id = createdDockerContainer.Id,
-            DockerContainer = createdDockerContainer.DockerContainerName,
-            Status = createdDockerContainer.Status.ToString(),
-            CreatedAt = createdDockerContainer.CreationDateTimeUtc
-        });
+        return CreatedAtAction(nameof(GetDockerContainer), new { id = createdDockerContainer.Id },
+            new DockerContainerResponseDto
+            {
+                Id = createdDockerContainer.Id,
+                DockerContainer = createdDockerContainer.DockerContainerName,
+                Status = createdDockerContainer.Status.ToString(),
+                CreatedAt = createdDockerContainer.CreationDateTimeUtc
+            });
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<DockerContainerResponseDto>> GetDockerContainer(Guid id, CancellationToken cancellationToken)
+    public async Task<ActionResult<DockerContainerResponseDto>> GetDockerContainer(Guid id,
+        CancellationToken cancellationToken)
     {
         var dockerContainer = await _dockerContainerService.GetDockerContainerByIdAsync(id, cancellationToken);
         if (dockerContainer == null)
@@ -56,7 +77,8 @@ public class DockerContainerController : ControllerBase
         CancellationToken cancellationToken)
     {
         var updatedDockerContainer =
-            await _dockerContainerService.UpdateDockerContainerAsync(id, dockerContainerDto, HttpContext, cancellationToken);
+            await _dockerContainerService.UpdateDockerContainerAsync(id, dockerContainerDto, HttpContext,
+                cancellationToken);
         if (updatedDockerContainer == null)
             return NotFound();
 

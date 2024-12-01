@@ -4,28 +4,46 @@ using DockScripter.Repositories;
 using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using DockScripter.Domain.Enums;
+using DockScripter.Services.Interfaces;
 
 namespace DockScripter.Services;
 
 public class DockerContainerService : IDockerContainerService
 {
     private readonly DockerContainerRepository _dockerContainerRepository;
+    private readonly IDockerClient _dockerClient;
 
-    public DockerContainerService(DockerContainerRepository dockerContainerRepository)
+    public DockerContainerService(DockerContainerRepository dockerContainerRepository, IDockerClient dockerClient)
     {
         _dockerContainerRepository = dockerContainerRepository;
+        _dockerClient = dockerClient;
     }
 
-    public async Task<DockerContainerEntity> InitializeDockerContainerAsync(DockerContainerRequestDto dockerContainerDto,
+    public async Task<DockerContainerEntity> CreateDockerContainerAsync(
+        DockerContainerRequestDto dockerContainerDto,
         HttpContext httpContext, CancellationToken cancellationToken)
     {
+        if (string.IsNullOrWhiteSpace(dockerContainerDto.DockerContainerName))
+            throw new ArgumentException("Docker container name cannot be empty");
+
+        if (string.IsNullOrWhiteSpace(dockerContainerDto.DockerImage))
+            throw new ArgumentException("Docker image cannot be empty");
+
         var userId = Guid.Parse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ??
                                 throw new UnauthorizedAccessException("User not authenticated"));
+
+        var dockerContainerId = await _dockerClient.CreateContainerAsync(dockerContainerDto.DockerImage,
+            dockerContainerDto.DockerContainerName, cancellationToken);
+
+        if (dockerContainerId == null)
+            throw new Exception("Failed to create Docker container, Docker container ID is null");
 
         var dockerContainer = new DockerContainerEntity
         {
             DockerContainerName = dockerContainerDto.DockerContainerName,
-            Status = DockerContainerStatus.Initializing,
+            DockerImage = dockerContainerDto.DockerImage,
+            Status = DockerContainerStatus.Created,
+            ContainerId = dockerContainerId,
             UserId = userId
         };
 
@@ -49,10 +67,7 @@ public class DockerContainerService : IDockerContainerService
             return null;
 
         dockerContainer.DockerContainerName = dockerContainerDto.DockerContainerName;
-        dockerContainer.Status = DockerContainerStatus.Ready;
-
         await _dockerContainerRepository.SaveChangesAsync(cancellationToken);
-
         return dockerContainer;
     }
 

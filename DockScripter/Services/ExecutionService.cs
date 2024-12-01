@@ -102,8 +102,8 @@ public class ExecutionService : IExecutionService
 
             // Store S3 paths in ExecutionResultEntity
             result.Status = ExecutionStatus.Success;
-            result.OutputFilePath = outputS3Path;
-            result.ErrorOutputFilePath = errorS3Path;
+            result.OutputFilePath = outputS3Key;
+            result.ErrorOutputFilePath = errorS3Key;
         }
         catch (Exception ex)
         {

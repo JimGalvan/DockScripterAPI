@@ -2,11 +2,10 @@
 
 public enum DockerContainerStatus
 {
-    NotInitialized,
     Created,
-    Initializing,
-    Ready,
     Running,
-    Stopped,
-    Error
+    Paused,
+    Restarting,
+    Exited,
+    Dead
 }

@@ -3,6 +3,7 @@ using DockScripter.Domain.Entities;
 using DockScripter.Domain.Enums;
 using DockScripter.Repositories;
 using System.Security.Claims;
+using DockScripter.Core.Exceptions;
 using DockScripter.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,68 +13,108 @@ public class ScriptService : IScriptService
 {
     private readonly ScriptRepository _scriptRepository;
     private readonly ScriptFileRepository _scriptFileRepository;
+    private readonly IS3Service _s3Service;
 
-    public ScriptService(ScriptRepository scriptRepository, ScriptFileRepository scriptFileRepository)
+    public ScriptService(ScriptRepository scriptRepository, ScriptFileRepository scriptFileRepository,
+        IS3Service s3Service)
     {
         _scriptRepository = scriptRepository;
         _scriptFileRepository = scriptFileRepository;
+        _s3Service = s3Service;
     }
 
-
-    public async Task AddScriptFileAsync(Guid scriptId, string s3Key, CancellationToken cancellationToken)
+    public async Task<string> AddScriptFileAsync(Guid scriptId, IFormFile file, CancellationToken cancellationToken)
     {
-        // Check if the script exists
+        if (file.Length == 0)
+            throw new ArgumentException($"Invalid File. File length is {file.Length}.");
+
         var script = await _scriptRepository.SelectById(scriptId, cancellationToken);
+
         if (script == null)
-        {
             throw new ArgumentException("Script not found.");
+
+        var s3Key = $"{scriptId}/{file.FileName}";
+
+        var wasFileUploaded = false;
+
+        await using (var stream = file.OpenReadStream())
+        {
+            var response = await _s3Service.UploadFileAsync(stream, s3Key);
+            wasFileUploaded = response.HttpStatusCode == System.Net.HttpStatusCode.OK;
         }
 
-        // Create a new ScriptFile entry
+        if (!wasFileUploaded)
+            throw new S3FileUploadException("Failed to upload file to S3.");
+
         var scriptFile = new ScriptFile
         {
             ScriptId = scriptId,
             S3Key = s3Key
         };
 
-        // Add the ScriptFile to the database and save changes
         await _scriptFileRepository.AddAsync(scriptFile, cancellationToken);
         await _scriptFileRepository.SaveChangesAsync(cancellationToken);
 
-        // Add the ScriptFile to the Script entity
         script.Files.Add(scriptFile);
         await _scriptRepository.SaveChangesAsync(cancellationToken);
 
-        var result = await _scriptRepository.SelectById(scriptId, cancellationToken);
+        return s3Key;
     }
 
-    public async Task<ScriptEntity> CreateScriptAsync(ScriptRequestDto scriptDto, HttpContext httpContext,
+    public async Task<ScriptEntity> CreateScriptAsync(ScriptRequestDto scriptDto, DockerContainerEntity dockerContainer,
+        HttpContext httpContext,
         CancellationToken cancellationToken)
     {
-        // Get user ID from the token within the HttpContext
         var userId = Guid.Parse(httpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ??
                                 throw new UnauthorizedAccessException("User not authenticated"));
 
-        // Parse the language
         if (!Enum.TryParse(scriptDto.Language, out ScriptLanguage language))
         {
             throw new ArgumentException("Invalid language specified.");
         }
 
-        // Create and populate the ScriptEntity
         var script = new ScriptEntity
         {
             Name = scriptDto.Name,
             Description = scriptDto.Description,
             EntryFilePath = scriptDto.EntryFilePath,
             Language = language,
-            UserId = userId
+            UserId = userId,
+            DockerContainer = dockerContainer,
         };
 
         await _scriptRepository.AddAsync(script, cancellationToken);
         await _scriptRepository.SaveChangesAsync(cancellationToken);
 
-        return script;
+        var createdScript = _scriptRepository.SelectById(script.Id, cancellationToken).Result;
+        var scriptId = createdScript?.Id ?? throw new Exception("Script ID is null.");
+
+        if (scriptDto.Files == null || scriptDto.Files.Count == 0)
+        {
+            return createdScript;
+        }
+
+        foreach (var file in scriptDto.Files)
+        {
+            try
+            {
+                await AddScriptFileAsync(scriptId, file, cancellationToken);
+            }
+            catch (S3FileUploadException e)
+            {
+                await _scriptRepository.DeleteById(scriptId, cancellationToken);
+                await _scriptRepository.SaveChangesAsync(cancellationToken);
+                throw new Exception("Failed to upload file to S3. Script creation failed.", e);
+            }
+        }
+
+        var createdScriptWithFiles = _scriptRepository.SelectById(scriptId, cancellationToken).Result;
+        if (createdScriptWithFiles == null)
+        {
+            throw new Exception("Script is null.");
+        }
+
+        return createdScriptWithFiles;
     }
 
     public async Task<ScriptEntity?> GetScriptByIdAsync(Guid scriptId, CancellationToken cancellationToken)

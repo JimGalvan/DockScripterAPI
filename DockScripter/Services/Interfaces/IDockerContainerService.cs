@@ -5,7 +5,7 @@ namespace DockScripter.Services;
 
 public interface IDockerContainerService
 {
-    Task<DockerContainerEntity> InitializeDockerContainerAsync(DockerContainerRequestDto dockerContainerDto,
+    Task<DockerContainerEntity> CreateDockerContainerAsync(DockerContainerRequestDto dockerContainerDto,
         HttpContext httpContext,
         CancellationToken cancellationToken);
 

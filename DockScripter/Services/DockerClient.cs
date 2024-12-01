@@ -1,15 +1,10 @@
 ﻿using Docker.DotNet;
 using Docker.DotNet.Models;
 using DockScripter.Services.Interfaces;
-using Docker.DotNet.Models;
-using Docker.DotNet;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace DockScripter.Services;
 
-public class DockerClient
+public class DockerClient : Interfaces.IDockerClient
 {
     private readonly Docker.DotNet.DockerClient _client;
     private readonly IS3Service _s3Service;
@@ -18,6 +13,24 @@ public class DockerClient
     {
         _s3Service = s3Service;
         _client = new DockerClientConfiguration().CreateClient();
+    }
+
+    public async Task<string> CreateContainerAsync(string dockerImage, string dockerContainerName,
+        CancellationToken cancellationToken)
+    {
+        var response = await _client.Containers.CreateContainerAsync(new CreateContainerParameters
+        {
+            Image = dockerImage,
+            Name = dockerContainerName,
+            HostConfig = new HostConfig
+            {
+                AutoRemove = true,
+                Memory = 256 * 1024 * 1024,
+                NanoCPUs = 500000000
+            }
+        }, cancellationToken);
+
+        return response.ID;
     }
 
     public async Task<string> ExecuteScriptWithFilesAsync(string localDirectory, string entryFilePath,
