@@ -92,6 +92,34 @@ public abstract class BaseRepository<TEntity> where TEntity : BaseEntity
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<PaginatedListDomain<T>> GetPaginatedListByUserId<T>(
+        IOrderedQueryable<T> queryable,
+        Guid userId,
+        int page,
+        int limit,
+        CancellationToken cancellationToken) where T : class
+    {
+        var filteredQueryable = queryable.Where(x => EF.Property<Guid>(x, "UserId") == userId);
+
+        var pagedQueryable = await filteredQueryable
+            .Select(x => new
+            {
+                TotalCount = filteredQueryable.Count(),
+                Item = x
+            })
+            .Skip((page - 1) * limit)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
+
+        var paginatedList = new PaginatedListDomain<T>
+        {
+            TotalCount = pagedQueryable.FirstOrDefault()?.TotalCount ?? 0,
+            Items = pagedQueryable.Select(x => x.Item)
+        };
+
+        return paginatedList;
+    }
+
     public async Task<PaginatedListDomain<T>> GetPaginatedList<T>(
         IOrderedQueryable<T> queryable,
         int page,
@@ -102,7 +130,7 @@ public abstract class BaseRepository<TEntity> where TEntity : BaseEntity
             .Select(x => new
             {
                 TotalCount = queryable.Count(),
-                User = x
+                Item = x
             })
             .Skip((page - 1) * limit)
             .Take(limit)
@@ -111,7 +139,7 @@ public abstract class BaseRepository<TEntity> where TEntity : BaseEntity
         var paginatedList = new PaginatedListDomain<T>
         {
             TotalCount = pagedQueryable.FirstOrDefault()?.TotalCount ?? 0,
-            Items = pagedQueryable.Select(x => x.User)
+            Items = pagedQueryable.Select(x => x.Item)
         };
 
         return paginatedList;
