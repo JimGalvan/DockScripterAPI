@@ -1,7 +1,9 @@
 ﻿using System.Text;
+using System.Text.Json;
 using Amazon;
 using Amazon.S3;
 using Amazon.S3.Model;
+using DockScripter.Core.Aws;
 using DockScripter.Services.Interfaces;
 
 public class S3Service : IS3Service
@@ -11,18 +13,32 @@ public class S3Service : IS3Service
 
     public S3Service(IConfiguration configuration)
     {
-        var awsAccessKeyId = configuration["AWS:AccessKeyId"];
-        var awsSecretAccessKey = configuration["AWS:SecretAccessKey"];
-        var awsRegion = configuration["AWS:Region"];
+        var environment = configuration["Environment"];
+        var awsRegion = configuration["AWS:Region"]
+                        ?? throw new Exception("AWS region is not configured properly.");
 
-        if (string.IsNullOrEmpty(awsAccessKeyId) || string.IsNullOrEmpty(awsSecretAccessKey) ||
-            string.IsNullOrEmpty(awsRegion))
+        if (environment == "Development")
         {
-            throw new Exception("AWS credentials or region are not configured properly.");
-        }
+            var awsAccessKeyId = configuration["AWS:AccessKeyId"];
+            var awsSecretAccessKey = configuration["AWS:SecretAccessKey"];
+            _bucketName = configuration["AWS:S3BucketName"]
+                          ?? throw new Exception("S3 bucket name is not configured.");
 
-        _s3Client = new AmazonS3Client(awsAccessKeyId, awsSecretAccessKey, RegionEndpoint.GetBySystemName(awsRegion));
-        _bucketName = configuration["S3BucketName"] ?? throw new Exception("S3 bucket name is not configured.");
+            if (string.IsNullOrEmpty(awsAccessKeyId) || string.IsNullOrEmpty(awsSecretAccessKey))
+            {
+                throw new Exception("AWS credentials are not configured properly for development.");
+            }
+
+            _s3Client = new AmazonS3Client(awsAccessKeyId, awsSecretAccessKey,
+                RegionEndpoint.GetBySystemName(awsRegion));
+        }
+        else
+        {
+            _s3Client = new AmazonS3Client(RegionEndpoint.GetBySystemName(awsRegion));
+            var secretsClient = new AwsSecretsManagerClient();
+            var secretValue = secretsClient.GetSecret("DockScripterS3BucketName");
+            _bucketName = secretValue.ToString() ?? throw new Exception("S3 bucket name is not configured.");
+        }
     }
 
     public async Task<PutObjectResponse> UploadFileAsync(Stream fileStream, string fileName)

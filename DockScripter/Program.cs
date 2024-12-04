@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using DockScripter.Core;
+using DockScripter.Core.Aws;
 using DockScripter.Repositories;
 using DockScripter.Repositories.Contexts;
 using DockScripter.Repositories.Interfaces;
@@ -38,6 +39,7 @@ builder.Services.AddScoped<IExecutionService, ExecutionService>();
 builder.Services.AddScoped<ExecutionResultRepository>();
 builder.Services.AddScoped<GlobalExceptionFilter>();
 builder.Services.AddScoped<ScriptFileRepository>();
+builder.Services.AddScoped<AwsSecretsManagerClient>();
 
 
 // DB context
@@ -101,13 +103,6 @@ app.UseAuthorization();
 app.MapControllers();
 app.UseCors();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
