@@ -107,7 +107,6 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddSingleton<ITokenBlacklistService, TokenBlacklistService>();
 
 // Set host
-
 builder.WebHost.UseUrls("http://0.0.0.0:80");
 
 var app = builder.Build();
