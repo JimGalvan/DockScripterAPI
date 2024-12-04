@@ -3,7 +3,7 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /app
 
 # Define build argument
-ARG ENVIRONMENT=Production
+ARG ENVIRONMENT=Development
 
 # Copy csproj and restore as distinct layers
 COPY *.sln .
@@ -19,7 +19,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS runtime
 WORKDIR /app
 
 # Define build argument and set environment variable
-ARG ENVIRONMENT=Production
+ARG ENVIRONMENT=Development
 ENV ASPNETCORE_ENVIRONMENT=$ENVIRONMENT
 
 # Copy the published output from the build stage
