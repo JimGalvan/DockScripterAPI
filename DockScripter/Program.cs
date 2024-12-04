@@ -69,7 +69,20 @@ builder.Services.AddCors(options =>
 
 // Configure JWT authentication
 // Will be replaced with a more secure method in the future
-var key = Encoding.ASCII.GetBytes("DGYecfhL/yMddqEecxu66h702G7iPZQ0WPPSjI+Umas=12345678901234567890123456789012");
+
+var key = Array.Empty<byte>();
+if (builder.Environment.IsDevelopment())
+{
+    var configuration = builder.Configuration;
+    var keyUnencoded = configuration["Jwt:Key"];
+
+    if (keyUnencoded == null)
+    {
+        throw new Exception("JWT key not found in configuration");
+    }
+
+    key = Encoding.ASCII.GetBytes(keyUnencoded);
+}
 
 builder.Services.AddAuthentication(options =>
     {
