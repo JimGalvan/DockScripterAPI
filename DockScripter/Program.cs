@@ -107,28 +107,36 @@ builder.Services.AddAuthentication(options =>
 builder.Services.AddSingleton<ITokenBlacklistService, TokenBlacklistService>();
 
 // Set host
+
 builder.WebHost.UseUrls("http://0.0.0.0:80");
 
 var app = builder.Build();
+var scope = app.Services.CreateScope();
+var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+
+// log the environment
+logger.LogInformation("Environment: {Environment}", app.Environment.EnvironmentName);
+logger.LogInformation("ASPNETCORE_ENVIRONMENT: {ASPNETCORE_ENVIRONMENT}",
+    Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"));
+logger.LogInformation("Connection string: {ConnectionString}",
+    app.Configuration.GetConnectionString("DefaultConnection"));
 
 // Apply pending migrations
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<DataContext>();
-    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
 
-    try
-    {
-        logger.LogInformation("Applying database migrations...");
-        dbContext.Database.Migrate();
-        logger.LogInformation("Database migrations applied successfully.");
-    }
-    catch (Exception ex)
-    {
-        logger.LogError(ex, "An error occurred while applying database migrations.");
-        throw;
-    }
+var dbContext = scope.ServiceProvider.GetRequiredService<DataContext>();
+
+try
+{
+    logger.LogInformation("Applying database migrations...");
+    dbContext.Database.EnsureCreated();
+    dbContext.Database.Migrate();
+    logger.LogInformation("Database migrations applied successfully.");
 }
+catch (Exception ex)
+{
+    logger.LogError(ex, "An error occurred while applying database migrations.");
+}
+
 
 // Configure the HTTP request pipeline.
 app.UseCors("AllowAllOrigins");
