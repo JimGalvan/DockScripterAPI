@@ -14,6 +14,7 @@ public class ScriptRepository : BaseRepository<ScriptEntity>
     {
         return await _context.Set<ScriptEntity>()
             .Where(x => x.UserId == userId)
+            .OrderByDescending(x => x.CreationDateTimeUtc)
             .ToListAsync(cancellationToken);
     }
 }
