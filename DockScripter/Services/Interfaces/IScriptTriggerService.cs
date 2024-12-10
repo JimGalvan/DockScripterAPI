@@ -1,6 +1,8 @@
-﻿namespace DockScripter.Services.Interfaces;
+﻿using Amazon.SQS.Model;
+
+namespace DockScripter.Services.Interfaces;
 
 public interface IScriptTriggerService
 {
-    Task SendScriptTriggerAsync(string scriptName, Dictionary<string, string> parameters);
+    Task<SendMessageResponse> SendScriptTriggerAsync(Guid scriptId, Dictionary<string, string> message);
 }

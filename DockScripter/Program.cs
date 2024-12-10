@@ -40,6 +40,7 @@ builder.Services.AddScoped<ExecutionResultRepository>();
 builder.Services.AddScoped<GlobalExceptionFilter>();
 builder.Services.AddScoped<ScriptFileRepository>();
 builder.Services.AddScoped<AwsSecretsManagerClient>();
+builder.Services.AddScoped<IScriptTriggerService, ScriptTriggerService>();
 
 
 // DB context

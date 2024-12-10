@@ -30,11 +30,12 @@ public class ScriptTriggerService : IScriptTriggerService
         }
     }
 
-    public async Task SendScriptTriggerAsync(string scriptName, Dictionary<string, string> parameters)
+    public async Task<SendMessageResponse> SendScriptTriggerAsync(Guid scriptId,
+        Dictionary<string, string> parameters)
     {
         var messageBody = System.Text.Json.JsonSerializer.Serialize(new
         {
-            ScriptName = scriptName,
+            scriptId = scriptId,
             Parameters = parameters
         });
 
@@ -43,7 +44,6 @@ public class ScriptTriggerService : IScriptTriggerService
             QueueUrl = _queueUrl,
             MessageBody = messageBody
         };
-
-        await _sqsClient.SendMessageAsync(sendMessageRequest);
+        return await _sqsClient.SendMessageAsync(sendMessageRequest);
     }
 }

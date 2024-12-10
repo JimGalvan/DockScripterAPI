@@ -1,4 +1,5 @@
-﻿using DockScripter.Domain.Dtos.Requests;
+﻿using System.Net;
+using DockScripter.Domain.Dtos.Requests;
 using DockScripter.Domain.Dtos.Responses;
 using DockScripter.Services;
 using DockScripter.Services.Interfaces;
@@ -67,14 +68,20 @@ public class ScriptController : ControllerBase
         if (script == null)
             return NotFound(new { Message = "Script not found." });
 
-        var parameters = new Dictionary<string, string> { { "ScriptId", scriptId.ToString() } };
-
         if (script.Name == null)
         {
             return BadRequest(new { Message = "Script name is not set." });
         }
 
-        await _scriptTriggerService.SendScriptTriggerAsync(script.Name, parameters);
+        var parameters = new Dictionary<string, string>
+            { { "eventType", "script.execute" }, { "source", "DockScripter" } };
+        var response = await _scriptTriggerService.SendScriptTriggerAsync(scriptId, parameters);
+
+        if (response.HttpStatusCode != HttpStatusCode.OK)
+        {
+            return BadRequest(new { Message = "Failed to trigger script execution." });
+        }
+
         return Ok(new { Message = "Script execution triggered successfully." });
     }
 
