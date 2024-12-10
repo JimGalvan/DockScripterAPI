@@ -14,4 +14,6 @@ public interface IDockerClient
     Task<MultiplexedStream> GetContainerLogsAsync(string containerId, CancellationToken cancellationToken);
     Task StartContainerAsync(string containerId, CancellationToken cancellationToken);
     Task StopContainerAsync(string containerId, CancellationToken cancellationToken);
+
+    Task<long> GetContainerExitCodeAsync(string containerId, CancellationToken cancellationToken);
 }

@@ -93,6 +93,10 @@ public class ExecutionService : IExecutionService
                 }
             }
 
+            // Verify the exit code of the container
+            var exitCode = await _dockerClient.GetContainerExitCodeAsync(containerId, cancellationToken);
+            result = UpdateResultBasedOnExitCode(exitCode, result);
+
             // Step 3: Upload logs to S3
             var outputS3Key = $"logs/{script.Id}/stdout.log";
             var errorS3Key = $"logs/{script.Id}/stderr.log";
@@ -124,6 +128,26 @@ public class ExecutionService : IExecutionService
         // Save execution result to the database
         await _executionResultRepository.AddAsync(result, cancellationToken);
         await _executionResultRepository.SaveChangesAsync(cancellationToken);
+
+        return result;
+    }
+
+    private static ExecutionResultEntity UpdateResultBasedOnExitCode(long exitCode, ExecutionResultEntity result)
+    {
+        switch (exitCode)
+        {
+            case 0:
+                result.Status = ExecutionStatus.Success;
+                break;
+            case 137:
+                result.Status = ExecutionStatus.Failed;
+                result.ErrorOutput = "Script was killed due to memory limit.";
+                break;
+            default:
+                result.Status = ExecutionStatus.Failed;
+                result.ErrorOutput = $"Script exited with code {exitCode}";
+                break;
+        }
 
         return result;
     }

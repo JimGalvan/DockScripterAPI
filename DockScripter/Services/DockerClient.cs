@@ -24,6 +24,12 @@ public class DockerClient : Interfaces.IDockerClient
         }
     }
 
+    public async Task<long> GetContainerExitCodeAsync(string containerId, CancellationToken cancellationToken)
+    {
+        var container = await _client.Containers.InspectContainerAsync(containerId, cancellationToken);
+        return container.State.ExitCode;
+    }
+
     public async Task<string> CreateContainerAsync(string dockerImage, string dockerContainerName,
         CancellationToken cancellationToken)
     {

@@ -17,14 +17,16 @@ public class ScriptController : ControllerBase
     private readonly IScriptService _scriptService;
     private readonly IS3Service _s3Service;
     private readonly IDockerContainerService _dockerContainerService;
+    private readonly IScriptTriggerService _scriptTriggerService;
 
     public ScriptController(IExecutionService executionService, IScriptService scriptService, IS3Service s3Service,
-        IDockerContainerService dockerContainerService)
+        IDockerContainerService dockerContainerService, IScriptTriggerService scriptTriggerService)
     {
         _executionService = executionService;
         _scriptService = scriptService;
         _s3Service = s3Service;
         _dockerContainerService = dockerContainerService;
+        _scriptTriggerService = scriptTriggerService;
     }
 
     [HttpPost("{scriptId}/upload")]
@@ -57,6 +59,25 @@ public class ScriptController : ControllerBase
             ErrorOutputFilePath = executionResult.ErrorOutputFilePath
         });
     }
+
+    [HttpPost("{scriptId}/start")]
+    public async Task<IActionResult> TriggerScriptExecutionAsync(Guid scriptId, CancellationToken cancellationToken)
+    {
+        var script = await _scriptService.GetScriptByIdAsync(scriptId, cancellationToken);
+        if (script == null)
+            return NotFound(new { Message = "Script not found." });
+
+        var parameters = new Dictionary<string, string> { { "ScriptId", scriptId.ToString() } };
+
+        if (script.Name == null)
+        {
+            return BadRequest(new { Message = "Script name is not set." });
+        }
+
+        await _scriptTriggerService.SendScriptTriggerAsync(script.Name, parameters);
+        return Ok(new { Message = "Script execution triggered successfully." });
+    }
+
 
     [HttpPost]
     public async Task<IActionResult> CreateScript(ScriptRequestDto scriptDto, CancellationToken cancellationToken)
